@@ -11,12 +11,9 @@ config_version=5
 [application]
 
 config/name="Special Snake"
+run/main_scene="uid://bsmgh5ylwfl1q"
 config/features=PackedStringArray("4.4", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
-
-[autoload]
-
-ErrorCapture="*res://addons/ErrorCapture/ErrorCapture.tscn"
 
 [debug]
 
@@ -29,10 +26,6 @@ window/stretch/mode="canvas_items"
 [dotnet]
 
 project/assembly_name="Special Snake"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/ErrorCapture/plugin.cfg", "res://addons/rebuild_cs_on_focus/plugin.cfg")
 
 [input]
 
