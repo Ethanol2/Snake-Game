@@ -1,19 +1,23 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public partial class Player : Area2D
 {
     [ExportCategory("Parameters")]
     [Export] private int _speed = 10;
     [Export] private Vector2 _direction = Vector2.Up;
+    [Export] private bool _edgeWrap = true;
 
     [ExportGroup("References")]
     [Export] private Grid _grid;
     [Export] private Sprite2D _sprite;
+    [Export] private CollisionShape2D _collider;
 
     [ExportGroup("Debug")]
-    [Export] private Vector2 _realPosition;
+    [Export] private bool _debug = false;
+    [Export] private Vector2 _realPosition = Vector2.Zero;
 
     // Lifecycle
     public override void _Ready()
@@ -31,13 +35,26 @@ public partial class Player : Area2D
 
         Vector2 spriteSize = _sprite.Texture.GetSize();
         _sprite.Scale = _grid.SquareSize / spriteSize;
+        _collider.Scale = _sprite.Scale;
 
-        _realPosition = _grid.GetPosition(Position);
+        Position = _grid.ConvertPosition(_realPosition);
     }
     public override void _Process(double delta)
     {
-        _realPosition += _direction * _speed * (float)delta;
-        Position = _grid.GetPosition(_realPosition);
+        _realPosition += _direction * (float)delta * _speed;
+
+        Position = _grid.ConvertPosition(_realPosition);
+
+        if (_edgeWrap)
+            _realPosition = _grid.WrapEdge(_realPosition, Position);
+
+        if (_debug)
+            QueueRedraw();
+    }
+    public override void _Draw()
+    {
+        if (_debug)
+            DrawCircle(_realPosition - Position, _grid.SquareSize.X / 5f, Colors.Red);    
     }
 
     // Callbacks

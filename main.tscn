@@ -13,4 +13,6 @@ _drawGrid = true
 _gridColour = Color(1, 1, 1, 0.105882)
 
 [node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("2_h2yge")]
+_speed = 50
 _grid = NodePath("../Grid")
+_debug = true
