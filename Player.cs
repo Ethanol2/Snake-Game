@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 public partial class Player : Area2D
 {
@@ -18,6 +17,8 @@ public partial class Player : Area2D
     [ExportGroup("Debug")]
     [Export] private bool _debug = false;
     [Export] private Vector2 _realPosition = Vector2.Zero;
+
+    private _SnakeBody _snakeBody;
 
     // Lifecycle
     public override void _Ready()
@@ -37,7 +38,8 @@ public partial class Player : Area2D
         _sprite.Scale = _grid.SquareSize / spriteSize;
         _collider.Scale = _sprite.Scale;
 
-        Position = _grid.ConvertPosition(_realPosition);
+        Position = _realPosition = _grid.ConvertPosition(_realPosition);
+        _snakeBody = new _SnakeBody();
     }
     public override void _Process(double delta)
     {
@@ -49,39 +51,88 @@ public partial class Player : Area2D
             _realPosition = _grid.WrapEdge(_realPosition, Position);
 
         if (_debug)
+        {
             QueueRedraw();
-    }
-    public override void _Draw()
-    {
-        if (_debug)
-            DrawCircle(_realPosition - Position, _grid.SquareSize.X / 5f, Colors.Red);    
+
+            if (Input.IsKeyPressed(Key.F))
+            {
+
+            }
+        }
     }
 
     // Callbacks
+    public override void _Draw()
+    {
+        if (_debug)
+        {
+            DrawCircle(_realPosition - Position, _grid.SquareSize.X / 5f, Colors.Red);
+            DrawLine(
+                _realPosition - Position,
+                _realPosition - Position + (_grid.SquareSize.X / 5f * _direction), Colors.Blue
+            );
+        }
+    }
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed("Up") && _direction != Vector2.Down)
+        if (Mathf.Abs(_direction.Y) < 1f)
         {
-            _direction = Vector2.Up;
-            GetViewport().SetInputAsHandled();
+            if (@event.IsActionPressed("Up"))
+            {
+                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Up);
+                _direction = Vector2.Up;
+                GetViewport().SetInputAsHandled();
+            }
+            else if (@event.IsActionPressed("Down"))
+            {
+                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Down);
+                _direction = Vector2.Down;
+                GetViewport().SetInputAsHandled();
+            }
         }
-        else if (@event.IsActionPressed("Down") && _direction != Vector2.Up)
+        else
         {
-            _direction = Vector2.Down;
-            GetViewport().SetInputAsHandled();
-        }
-        else if (@event.IsActionPressed("Left") && _direction != Vector2.Right)
-        {
-            _direction = Vector2.Left;
-            GetViewport().SetInputAsHandled();
-        }
-        else if (@event.IsActionPressed("Right") && _direction != Vector2.Left)
-        {
-            _direction = Vector2.Right;
-            GetViewport().SetInputAsHandled();
+            if (@event.IsActionPressed("Left"))
+            {
+                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Left);
+                _direction = Vector2.Left;
+                GetViewport().SetInputAsHandled();
+            }
+            else if (@event.IsActionPressed("Right"))
+            {
+                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Right);
+                _direction = Vector2.Right;
+                GetViewport().SetInputAsHandled();
+            }
         }
     }
 
+    // Utility
+    private Vector2 SwapPositionOffset(Vector2 realPosition, Vector2 position, Vector2 oldDirection, Vector2 newDirection)
+    {
+        Vector2 newPosition;
+        Vector2 diff = realPosition - position;
+
+        // Account for square size
+        diff /= _grid.SquareSize;
+        diff.X *= _grid.SquareSize.Y;
+        diff.Y *= _grid.SquareSize.X;
+
+        if (Mathf.Abs(oldDirection.X) > 0f)
+            newPosition = new Vector2(
+                position.X,
+                Mathf.IsZeroApprox(oldDirection.X + newDirection.Y) ? position.Y - diff.X : position.Y + diff.X
+            );
+        else
+            newPosition = new Vector2(
+                Mathf.IsZeroApprox(oldDirection.Y + newDirection.X) ? position.X - diff.Y : position.X + diff.Y,
+                position.Y
+            );
+
+        return newPosition;
+    }
+
+    // Support Objects
     private struct _SnakeBody
     {
         public int length;
