@@ -13,7 +13,7 @@ config_version=5
 config/name="Special Snake"
 run/main_scene="uid://bsmgh5ylwfl1q"
 config/features=PackedStringArray("4.4", "C#", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://Art/icon.svg"
 
 [debug]
 

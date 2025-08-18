@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://bsmgh5ylwfl1q"]
 
-[ext_resource type="Script" uid="uid://b03501mbp0lyn" path="res://Main.cs" id="1_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://player.tscn" id="2_h2yge"]
-[ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Grid.cs" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://b03501mbp0lyn" path="res://Scripts/Main.cs" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="3_h2yge"]
 
 [node name="Main Scene" type="Node2D"]
 script = ExtResource("1_0xm2m")
@@ -13,6 +13,5 @@ _drawGrid = true
 _gridColour = Color(1, 1, 1, 0.105882)
 
 [node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("2_h2yge")]
-_speed = 50
 _grid = NodePath("../Grid")
 _debug = true

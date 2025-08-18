@@ -43,7 +43,7 @@ public partial class Player : Area2D
     }
     public override void _Process(double delta)
     {
-        _realPosition += _direction * (float)delta * _speed;
+        _realPosition += _direction * (float)delta * (_grid.SquareSize * _speed);
 
         Position = _grid.ConvertPosition(_realPosition);
 
