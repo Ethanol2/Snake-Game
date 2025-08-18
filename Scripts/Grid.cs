@@ -76,7 +76,7 @@ public partial class Grid : Node2D
 		Vector2 newPosition = position + _viewportSize;
 
 		newPosition.X = SnapToGrid(newPosition.X, _gridSize % 2 == 0 ? SquareSize.X / 2f : 0f, SquareSize.X);
-		newPosition.Y = SnapToGrid(newPosition.Y, _verticalGridSize % 2 == 0 ? SquareSize.Y / 2f : 0f,  SquareSize.Y);
+		newPosition.Y = SnapToGrid(newPosition.Y, _verticalGridSize % 2 == 0 ? SquareSize.Y / 2f : 0f, SquareSize.Y);
 
 		return newPosition - _viewportSize;
 	}
@@ -110,5 +110,6 @@ public partial class Grid : Node2D
 
 		return newPosition;
 	}
+	public Vector2 GetSpriteScale(Sprite2D sprite) => SquareSize / sprite.Texture.GetSize();
 
 }

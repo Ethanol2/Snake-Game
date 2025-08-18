@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class Player : Area2D
+public partial class Player : Node2D
 {
     [ExportCategory("Parameters")]
     [Export] private int _speed = 10;
@@ -11,14 +11,20 @@ public partial class Player : Area2D
 
     [ExportGroup("References")]
     [Export] private Grid _grid;
-    [Export] private Sprite2D _sprite;
-    [Export] private CollisionShape2D _collider;
+    [Export] private GridObject _base;
 
     [ExportGroup("Debug")]
     [Export] private bool _debug = false;
     [Export] private Vector2 _realPosition = Vector2.Zero;
+    [Export] private int _growthQueue = 0;
+
+    [ExportGroup("Debug/Snake Body")]
+    [Export] private Vector2[] _positions { get => _snakeBody == null ? null : _snakeBody.Positions.ToArray(); set {}}
 
     private _SnakeBody _snakeBody;
+
+    // Events
+    public event System.Action<Vector2> OnPositionChanged;
 
     // Lifecycle
     public override void _Ready()
@@ -28,35 +34,59 @@ public partial class Player : Area2D
             GD.PrintErr("Missing grid reference", this);
             return;
         }
-        if (_sprite == null)
+        if (_base == null)
         {
-            GD.PrintErr("Missing sprite reference");
+            GD.PrintErr("Missing Grid_Object reference");
             return;
         }
 
-        Vector2 spriteSize = _sprite.Texture.GetSize();
-        _sprite.Scale = _grid.SquareSize / spriteSize;
-        _collider.Scale = _sprite.Scale;
+        _base.Scale = _grid.GetSpriteScale(_base.Sprite) * 0.95f;
 
-        Position = _realPosition = _grid.ConvertPosition(_realPosition);
-        _snakeBody = new _SnakeBody();
+        _base.Position = _realPosition = _grid.ConvertPosition(_realPosition);
+        _snakeBody = new _SnakeBody(_base);
+
+        _base.AreaEntered += OnCollisionEnter;
+
+        _snakeBody = new _SnakeBody(_base);
+
+        ZIndex = 100;
     }
     public override void _Process(double delta)
     {
         _realPosition += _direction * (float)delta * (_grid.SquareSize * _speed);
-
-        Position = _grid.ConvertPosition(_realPosition);
-
         if (_edgeWrap)
-            _realPosition = _grid.WrapEdge(_realPosition, Position);
+            _realPosition = _grid.WrapEdge(_realPosition, _base.Position);
+
+        Vector2 newPos = _grid.ConvertPosition(_realPosition);
+
+        if (_base.Position != newPos)
+        {
+
+            if (_snakeBody.CheckExists(_base.Position))
+            {
+                this.Log("Dead");
+            }
+
+            if (_growthQueue > 0)
+            {
+                _snakeBody.AddPosition(_base.Position, this);
+                _growthQueue--;
+            }
+            else
+                _snakeBody.PushPosition(_base.Position);
+
+            _base.Position = newPos;
+            OnPositionChanged?.Invoke(_base.Position);
+        }        
 
         if (_debug)
         {
             QueueRedraw();
 
-            if (Input.IsKeyPressed(Key.F))
+            if (Input.IsPhysicalKeyPressed(Key.F) && _growthQueue == 0)
             {
-
+                _growthQueue++;
+                GetViewport().SetInputAsHandled();
             }
         }
     }
@@ -66,10 +96,10 @@ public partial class Player : Area2D
     {
         if (_debug)
         {
-            DrawCircle(_realPosition - Position, _grid.SquareSize.X / 5f, Colors.Red);
+            DrawCircle(_realPosition, _grid.SquareSize.X / 5f, Colors.Red);
             DrawLine(
-                _realPosition - Position,
-                _realPosition - Position + (_grid.SquareSize.X / 5f * _direction), Colors.Blue
+                _realPosition,
+                _realPosition + (_grid.SquareSize.X / 5f * _direction), Colors.Blue
             );
         }
     }
@@ -79,13 +109,13 @@ public partial class Player : Area2D
         {
             if (@event.IsActionPressed("Up"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Up);
+                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Up);
                 _direction = Vector2.Up;
                 GetViewport().SetInputAsHandled();
             }
             else if (@event.IsActionPressed("Down"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Down);
+                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Down);
                 _direction = Vector2.Down;
                 GetViewport().SetInputAsHandled();
             }
@@ -94,17 +124,21 @@ public partial class Player : Area2D
         {
             if (@event.IsActionPressed("Left"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Left);
+                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Left);
                 _direction = Vector2.Left;
                 GetViewport().SetInputAsHandled();
             }
             else if (@event.IsActionPressed("Right"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, Position, _direction, Vector2.Right);
+                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Right);
                 _direction = Vector2.Right;
                 GetViewport().SetInputAsHandled();
             }
         }
+    }
+    private void OnCollisionEnter(Area2D @other)
+    {
+
     }
 
     // Utility
@@ -131,30 +165,45 @@ public partial class Player : Area2D
 
         return newPosition;
     }
+    private void GrowSnake()
+    {
+
+    }
 
     // Support Objects
-    private struct _SnakeBody
+    private class _SnakeBody
     {
-        public int length;
-        public List<Vector2> positions;
+        public int Length;
+        public List<Vector2> Positions;
+        public List<Area2D> Nodes;
+        public Area2D BaseNode;
 
-        public _SnakeBody(Vector2 start)
+        public _SnakeBody(Area2D baseNode)
         {
-            length = 1;
-            positions = new List<Vector2>() { start };
+            Length = 0;
+            Positions = new List<Vector2>();
+            Nodes = new List<Area2D>();
+            BaseNode = baseNode;
         }
-        public bool AddPosition(Vector2 position)
+        public bool CheckExists(Vector2 position) => Positions.Contains(position);
+        public void PushPosition(Vector2 position)
         {
-            if (positions.Contains(position))
+            Positions.Add(position);
+            if (Positions.Count > Length)
+                Positions.RemoveAt(0);
+
+            for (int i = 0; i < Positions.Count; i++)
             {
-                return true;
+                Nodes[i].Position = Positions[i];
             }
-
-            positions.Add(position);
-            if (positions.Count > length)
-                positions.RemoveAt(0);
-
-            return false;
+        }
+        public void AddPosition(Vector2 position, Player parent)
+        {
+            Length += 1;
+            Area2D newNode = BaseNode.Duplicate() as Area2D;
+            parent.AddChild(newNode);
+            Nodes.Add(newNode);
+            PushPosition(position);
         }
     }
 }

@@ -2,20 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cf4vurxp57sm4" path="res://Scripts/Player.cs" id="1_onrkg"]
 [ext_resource type="Texture2D" uid="uid://bnardqohxl3dr" path="res://Art/player_sprite.tres" id="2_onrkg"]
+[ext_resource type="PackedScene" uid="uid://cpdv53i60335c" path="res://Game Objects/grid_object.tscn" id="2_wi4pt"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_onrkg"]
-size = Vector2(128, 128)
-
-[node name="Player" type="Area2D" node_paths=PackedStringArray("_sprite", "_collider")]
+[node name="Player" type="Node2D" node_paths=PackedStringArray("_base")]
 script = ExtResource("1_onrkg")
 _speed = 2
-_sprite = NodePath("Sprite2D")
-_collider = NodePath("CollisionShape2D")
+_base = NodePath("Grid Object")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-z_index = -1
-scale = Vector2(3.97, 3.97)
-texture = ExtResource("2_onrkg")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_onrkg")
+[node name="Grid Object" parent="." instance=ExtResource("2_wi4pt")]
+_spriteTexture = ExtResource("2_onrkg")

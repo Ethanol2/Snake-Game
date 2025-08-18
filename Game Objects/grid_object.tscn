@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://cpdv53i60335c"]
+
+[ext_resource type="Script" uid="uid://cs0kw3cjox6wb" path="res://Scripts/GridObject.cs" id="1_w56nc"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_fjydj"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l8bcf"]
+size = Vector2(30, 30)
+
+[node name="Grid Object" type="Area2D" node_paths=PackedStringArray("_sprite", "_collider")]
+script = ExtResource("1_w56nc")
+_spriteTexture = SubResource("PlaceholderTexture2D_fjydj")
+_sprite = NodePath("Sprite2D")
+_collider = NodePath("CollisionShape2D")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("PlaceholderTexture2D_fjydj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_l8bcf")
