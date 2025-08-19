@@ -25,4 +25,5 @@ public partial class GridObject : Area2D
 	// Properties
 	public Sprite2D Sprite => _sprite;
 	public CollisionShape2D Collider => _collider;
+	public Variant ParentScript => GetParent().GetScript();
 }

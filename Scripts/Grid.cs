@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 public partial class Grid : Node2D
@@ -12,12 +13,15 @@ public partial class Grid : Node2D
 	[ExportCategory("Debug")]
 	[Export] private Vector2 _squareSize;
 	[Export] private int _verticalGridSize;
+	[Export] private bool _drawGridCenters = false;
 
 	// Privates
 	private Vector2 _viewportSize;
 
 	// Properties
-	public int GridSize => _gridSize;
+	public int GridWidth => _gridSize;
+	public int GridHeight => _verticalGridSize;
+	public int GridSquareCount => _gridSize * _verticalGridSize;
 	public Vector2 SquareSize => _squareSize;
 
 	// Lifecycle
@@ -39,7 +43,7 @@ public partial class Grid : Node2D
 		Vector2 currentPos = new Vector2(_viewportSize.X / -2f, _viewportSize.Y / 2f);
 		currentPos.X -= _squareSize.X;
 
-		while (currentPos.X <= _viewportSize.X / 2f)
+		while (currentPos.X <= (_viewportSize.X / 2f) + 1)
 		{
 			DrawLine(
 				new Vector2(currentPos.X, currentPos.Y),
@@ -55,7 +59,7 @@ public partial class Grid : Node2D
 		currentPos = new Vector2(_viewportSize.X / 2f, _viewportSize.Y / -2f);
 		currentPos.Y -= _squareSize.Y;
 
-		while (currentPos.Y <= _viewportSize.Y / 2f)
+		while (currentPos.Y <= (_viewportSize.Y / 2f) + 1)
 		{
 			DrawLine(
 				new Vector2(currentPos.X, currentPos.Y),
@@ -66,6 +70,33 @@ public partial class Grid : Node2D
 				);
 
 			currentPos.Y += _squareSize.Y;
+		}
+
+		if (!_drawGridCenters)
+			return;
+
+		for (int x = 0; x < GridWidth; x++)
+		{
+			for (int y = 0; y < GridHeight; y++)
+			{
+				Vector2 labelPos = ConvertCoordinateToPosition(new Vector2I(x, y));
+
+				Vector2 size = Vector2.One * 0.2f;
+
+				DrawLine(
+					labelPos + SquareSize * size,
+					labelPos - SquareSize * size,
+					Colors.Blue.Lerp(Colors.Red, (float)x / GridWidth)
+				);
+
+				size.X *= -1f;
+
+				DrawLine(
+					labelPos + SquareSize * size,
+					labelPos - SquareSize * size,
+					Colors.Blue.Lerp(Colors.Red, (float)y / GridHeight)
+				);
+			}
 		}
 	}
 
@@ -111,5 +142,29 @@ public partial class Grid : Node2D
 		return newPosition;
 	}
 	public Vector2 GetSpriteScale(Sprite2D sprite) => SquareSize / sprite.Texture.GetSize();
+	public Vector2I ConvertPositionToCoordinates(Vector2 position)
+	{
+		position += _viewportSize;
+		position /= SquareSize;
+		return new Vector2I(Mathf.RoundToInt(position.Y), Mathf.RoundToInt(position.Y));
+	}
+	public List<Vector2I> ConvertPositionsToCoordinates(List<Vector2> positions)
+	{
+		List<Vector2I> coordinates = new List<Vector2I>();
+
+		foreach (Vector2 pos in positions)
+			coordinates.Add(ConvertPositionToCoordinates(pos));
+
+		return coordinates;
+	}
+	public Vector2 ConvertCoordinateToPosition(Vector2I coordinate)
+	{
+		Vector2 pos = coordinate;
+		pos *= SquareSize;
+		pos -= _viewportSize / 2f;
+		pos += SquareSize / 2f;
+
+		return pos;
+	}
 
 }

@@ -1,12 +1,15 @@
 [gd_scene load_steps=5 format=3 uid="uid://bsmgh5ylwfl1q"]
 
-[ext_resource type="Script" uid="uid://b03501mbp0lyn" path="res://Scripts/Main.cs" id="1_8gbba"]
+[ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
 [ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="3_kry3j"]
 [ext_resource type="PackedScene" uid="uid://0k8e0n3850yn" path="res://Game Objects/target.tscn" id="4_jjvhh"]
 
-[node name="Main Scene" type="Node2D"]
-script = ExtResource("1_8gbba")
+[node name="Main Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid")]
+script = ExtResource("1_jjvhh")
+_target = NodePath("Target")
+_player = NodePath("Player")
+_grid = NodePath("Grid")
 
 [node name="Grid" type="Node2D" parent="."]
 script = ExtResource("2_jjvhh")
@@ -17,5 +20,6 @@ _gridColour = Color(1, 1, 1, 0.105882)
 _grid = NodePath("../Grid")
 _debug = true
 
-[node name="Target" parent="." instance=ExtResource("4_jjvhh")]
+[node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
 position = Vector2(122, 0)
+_grid = NodePath("../Grid")

@@ -15,6 +15,7 @@ _sprite = NodePath("Sprite2D")
 _collider = NodePath("CollisionShape2D")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
 texture = SubResource("PlaceholderTexture2D_fjydj")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

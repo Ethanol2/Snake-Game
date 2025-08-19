@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public partial class Player : Node2D
 {
     [ExportCategory("Parameters")]
-    [Export] private int _speed = 10;
+    [Export] private float _speed = 2f;
     [Export] private Vector2 _direction = Vector2.Up;
     [Export] private bool _edgeWrap = true;
 
@@ -22,9 +22,14 @@ public partial class Player : Node2D
     [Export] private Vector2[] _positions { get => _snakeBody == null ? null : _snakeBody.Positions.ToArray(); set {}}
 
     private _SnakeBody _snakeBody;
+    private Vector2 _previous_dir;
+
+    // Properties
+    public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
 
     // Events
-    public event System.Action<Vector2> OnPositionChanged;
+    public event Action<Vector2> OnPositionChanged;
+    public event Action<Node2D> OnTargetAquired;
 
     // Lifecycle
     public override void _Ready()
@@ -43,13 +48,9 @@ public partial class Player : Node2D
         _base.Scale = _grid.GetSpriteScale(_base.Sprite) * 0.95f;
 
         _base.Position = _realPosition = _grid.ConvertPosition(_realPosition);
-        _snakeBody = new _SnakeBody(_base);
-
         _base.AreaEntered += OnCollisionEnter;
 
         _snakeBody = new _SnakeBody(_base);
-
-        ZIndex = 100;
     }
     public override void _Process(double delta)
     {
@@ -59,9 +60,8 @@ public partial class Player : Node2D
 
         Vector2 newPos = _grid.ConvertPosition(_realPosition);
 
-        if (_base.Position != newPos)
+        if (!_base.Position.IsEqualApprox(newPos))
         {
-
             if (_snakeBody.CheckExists(_base.Position))
             {
                 this.Log("Dead");
@@ -76,6 +76,7 @@ public partial class Player : Node2D
                 _snakeBody.PushPosition(_base.Position);
 
             _base.Position = newPos;
+            _previous_dir = _direction;
             OnPositionChanged?.Invoke(_base.Position);
         }        
 
@@ -105,7 +106,7 @@ public partial class Player : Node2D
     }
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (Mathf.Abs(_direction.Y) < 1f)
+        if (Mathf.Abs(_previous_dir.Y) < 1f)
         {
             if (@event.IsActionPressed("Up"))
             {
@@ -138,7 +139,16 @@ public partial class Player : Node2D
     }
     private void OnCollisionEnter(Area2D @other)
     {
+        Node parent = @other.GetParent();
+        if (parent == null)
+            return;
 
+        if (parent.Name == "Target")
+        {
+            _growthQueue++;
+            _speed *= 1.2f;
+            OnTargetAquired?.Invoke(parent as Node2D);
+        }
     }
 
     // Utility
@@ -165,9 +175,11 @@ public partial class Player : Node2D
 
         return newPosition;
     }
-    private void GrowSnake()
+    public List<Vector2> GetPositions()
     {
-
+        List<Vector2> positions = new List<Vector2>(_snakeBody.Positions);
+        positions.Add(_base.Position);
+        return positions;
     }
 
     // Support Objects
@@ -192,7 +204,7 @@ public partial class Player : Node2D
             if (Positions.Count > Length)
                 Positions.RemoveAt(0);
 
-            for (int i = 0; i < Positions.Count; i++)
+            for (int i = 0; i < Nodes.Count; i++)
             {
                 Nodes[i].Position = Positions[i];
             }

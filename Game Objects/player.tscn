@@ -6,7 +6,6 @@
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("_base")]
 script = ExtResource("1_onrkg")
-_speed = 2
 _base = NodePath("Grid Object")
 
 [node name="Grid Object" parent="." instance=ExtResource("2_wi4pt")]
