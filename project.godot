@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Special Snake"
-run/main_scene="uid://bsmgh5ylwfl1q"
+run/main_scene="uid://drcbagt1m3ca"
 config/features=PackedStringArray("4.4", "C#", "GL Compatibility")
 config/icon="res://Art/icon.svg"
 
@@ -21,7 +21,9 @@ file_logging/enable_file_logging=true
 
 [display]
 
-window/stretch/mode="canvas_items"
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="viewport"
 
 [dotnet]
 
@@ -53,3 +55,7 @@ Right={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194321,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

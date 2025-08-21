@@ -8,7 +8,6 @@ public partial class Player : Node2D
     [ExportCategory("Parameters")]
     [Export] private float _speed = 2f;
     [Export] private Vector2 _direction = Vector2.Up;
-    [Export] private bool _edgeWrap = true;
 
     [ExportGroup("References")]
     [Export] private Grid _grid;
@@ -25,14 +24,16 @@ public partial class Player : Node2D
 
     private _SnakeBody _snakeBody;
     private Vector2 _previous_dir;
-    private Vector2 deathPos = Vector2.Inf;
 
     // Properties
     public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
+    public float Speed { get => _speed; set { _speed = value; this.Log("Speed: " + _speed); } }
 
     // Events
     public event Action<Vector2> OnPositionChanged;
     public event Action<Node2D> OnTargetAquired;
+    public event Action<Vector2> OnTailCollide;
+    public event Action<Vector2> OnEdgeWrapped;
 
     // Lifecycle
     public override void _Ready()
@@ -70,11 +71,7 @@ public partial class Player : Node2D
             for (int i = 0; i < diff; i++)
             {
                 _base.Position = newPos - (_direction * _grid.SquareSize * (diff - i));
-
-                if (_edgeWrap)
-                {
-                    _base.Position = _grid.WrapEdge(_base.Position);
-                }
+                _base.Position = _grid.WrapEdge(_base.Position);
 
                 if (_growthQueue > 0)
                 {
@@ -83,23 +80,24 @@ public partial class Player : Node2D
                 }
                 else
                     _snakeBody.PushPosition(_base.Position);
+                    
             }
 
-            if (_edgeWrap)
+            if (_snakeBody.CheckForOverlap(diff - 1, out Vector2 overlap, newPos))
             {
-                _realPosition = _grid.WrapEdge(_realPosition);
-                newPos = _grid.WrapEdge(newPos);
+                this.Log("Collided with Tail");
+                OnTailCollide?.Invoke(overlap);
             }
+
+            _realPosition = _grid.WrapEdge(_realPosition, out bool wrapped);
+
+            if (wrapped)
+                OnEdgeWrapped?.Invoke(newPos);
+
+            newPos = _grid.WrapEdge(newPos);
 
             _base.Position = newPos;
             _previous_dir = _direction;
-
-            if (_snakeBody.CheckExists(_base.Position))
-            {
-                this.Log("Dead");
-                deathPos = _base.Position;
-
-            }
 
             OnPositionChanged?.Invoke(_base.Position);
         }
@@ -126,8 +124,6 @@ public partial class Player : Node2D
                 _realPosition,
                 _realPosition + (_grid.SquareSize.X / 5f * _direction), Colors.Blue
             );
-
-            DrawCircle(deathPos, _grid.SquareSize.X * 0.5f, Colors.Red);
         }
     }
     public override void _UnhandledInput(InputEvent @event)
@@ -172,7 +168,6 @@ public partial class Player : Node2D
         if (parent.Name == "Target")
         {
             _growthQueue++;
-            _speed *= 1.2f;
             OnTargetAquired?.Invoke(parent as Node2D);
         }
     }
@@ -226,6 +221,30 @@ public partial class Player : Node2D
             BaseNode = baseNode;
         }
         public bool CheckExists(Vector2 position) => Positions.Contains(position);
+        public bool CheckForOverlap(int sliceCount, out Vector2 overlapPos, params Vector2[] extras)
+        {
+            for (int i = 0; i < Positions.Count - sliceCount; i++)
+            {
+                for (int k = Positions.Count - sliceCount; k < Positions.Count; k++)
+                {
+                    if (Positions[i].IsEqualApprox(Positions[k]))
+                    {
+                        overlapPos = Positions[i];
+                        return true;
+                    }
+                }
+                foreach (Vector2 extra in extras)
+                {
+                    if (Positions[i].IsEqualApprox(extra))
+                    {
+                        overlapPos = extra;
+                        return true;
+                    }
+                }
+            }
+            overlapPos = Vector2.Inf;
+            return false;
+        }
         public void PushPosition(Vector2 position)
         {
             Positions.Add(position);

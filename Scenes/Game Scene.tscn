@@ -1,17 +1,21 @@
-[gd_scene load_steps=6 format=3 uid="uid://bsmgh5ylwfl1q"]
+[gd_scene load_steps=7 format=3 uid="uid://bsmgh5ylwfl1q"]
 
 [ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
 [ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="3_kry3j"]
 [ext_resource type="PackedScene" uid="uid://0k8e0n3850yn" path="res://Game Objects/target.tscn" id="4_jjvhh"]
+[ext_resource type="Curve" uid="uid://c8neyotonfhbv" path="res://Game Objects/difficulty_curve.tres" id="4_kry3j"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_jjvhh"]
+font_size = 66
 
-[node name="Main Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_scoreLabel")]
+[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_scoreLabel")]
 script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
 _player = NodePath("Player")
 _grid = NodePath("Grid")
+_maxSpeedAtPoints = 100
+_difficultyCurve = ExtResource("4_kry3j")
 _scoreLabel = NodePath("GUI/Score Label")
 
 [node name="Grid" type="Node2D" parent="."]
@@ -32,7 +36,7 @@ follow_viewport_enabled = true
 [node name="Score Label" type="Label" parent="GUI"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 23.0
+offset_bottom = 50.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6

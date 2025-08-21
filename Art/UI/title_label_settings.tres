@@ -1,0 +1,9 @@
+[gd_resource type="LabelSettings" load_steps=2 format=3 uid="uid://cirx63ei5lmx5"]
+
+[ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="1_xx3wm"]
+
+[resource]
+font = ExtResource("1_xx3wm")
+font_size = 96
+outline_size = 15
+outline_color = Color(0, 0, 0, 1)

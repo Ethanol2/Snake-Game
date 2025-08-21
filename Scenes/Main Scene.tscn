@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://drcbagt1m3ca"]
+
+[ext_resource type="PackedScene" uid="uid://b64hytns5ldbl" path="res://Scenes/Main Menu.tscn" id="1_tn1qc"]
+[ext_resource type="PackedScene" uid="uid://bsmgh5ylwfl1q" path="res://Scenes/Game Scene.tscn" id="2_ke1vn"]
+
+[node name="MainScene" type="Node"]
+
+[node name="MainMenu" parent="." instance=ExtResource("1_tn1qc")]
+
+[node name="Game Scene" parent="." instance=ExtResource("2_ke1vn")]
+process_mode = 4

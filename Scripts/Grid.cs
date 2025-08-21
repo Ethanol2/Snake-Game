@@ -49,7 +49,7 @@ public partial class Grid : Node2D
 				new Vector2(currentPos.X, currentPos.Y),
 				new Vector2(currentPos.X, -currentPos.Y),
 				_gridColour,
-				-1f,
+				2f,
 				true
 				);
 
@@ -65,7 +65,7 @@ public partial class Grid : Node2D
 				new Vector2(currentPos.X, currentPos.Y),
 				new Vector2(-currentPos.X, currentPos.Y),
 				_gridColour,
-				-1f,
+				2f,
 				true
 				);
 
@@ -124,20 +124,34 @@ public partial class Grid : Node2D
 		}
 		return pos;
 	}
-	public Vector2 WrapEdge(Vector2 position)
+	public Vector2 WrapEdge(Vector2 position) => WrapEdge(position, out bool temp);
+	public Vector2 WrapEdge(Vector2 position, out bool wrapped)
 	{
 		Vector2 newPosition = position;
 		Vector2 limits = _viewportSize / 2f;
+		wrapped = false;
 
 		if (position.X > limits.X)
+		{
 			newPosition.X += -_viewportSize.X;
+			wrapped = true;
+		}
 		else if (position.X < -limits.X)
+		{
 			newPosition.X += _viewportSize.X;
+			wrapped = true;
+		}
 
 		if (position.Y > limits.Y)
+		{
 			newPosition.Y += -_viewportSize.Y;
+			wrapped = true;
+		}
 		else if (position.Y < -limits.Y)
+		{
 			newPosition.Y += _viewportSize.Y;
+			wrapped = true;
+		}
 
 		return newPosition;
 	}
