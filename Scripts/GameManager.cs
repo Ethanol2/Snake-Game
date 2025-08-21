@@ -4,12 +4,16 @@ using System.Collections.Generic;
 
 public partial class GameManager : Node2D
 {
-    [ExportCategory("References")]
+    [ExportCategory("Game References")]
     [Export] private Target _target;
     [Export] private Player _player;
     [Export] private Grid _grid;
 
+    [ExportCategory("UI")]
+    [Export] private Label _scoreLabel;
+
     private RandomNumberGenerator rng = new RandomNumberGenerator();
+    private int _score = 0;
 
     public override void _Ready()
     {
@@ -18,11 +22,15 @@ public partial class GameManager : Node2D
         rng.Randomize();
         SpawnTarget(_target);
 
+        UpdateScore(0);
+
         _player.OnTargetAquired += OnPlayerGetTarget;
     }
     public void OnPlayerGetTarget(Node2D target)
     {
         SpawnTarget(target);
+        _score++;
+        UpdateScore(_score);
     }
     private void SpawnTarget(Node2D target)
     {
@@ -58,4 +66,5 @@ public partial class GameManager : Node2D
 
         target.Position = _grid.ConvertCoordinateToPosition(spawn);
     }
+    private void UpdateScore(int score) => _scoreLabel.Text = $"Score: {score}";
 }

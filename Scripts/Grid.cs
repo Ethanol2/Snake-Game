@@ -124,20 +124,20 @@ public partial class Grid : Node2D
 		}
 		return pos;
 	}
-	public Vector2 WrapEdge(Vector2 realPosition, Vector2 gridPosition)
+	public Vector2 WrapEdge(Vector2 position)
 	{
-		Vector2 newPosition = realPosition;
+		Vector2 newPosition = position;
 		Vector2 limits = _viewportSize / 2f;
 
-		if (realPosition.X > limits.X)
-			newPosition.X = -limits.X;
-		else if (realPosition.X < -limits.X)
-			newPosition.X = limits.X;
+		if (position.X > limits.X)
+			newPosition.X += -_viewportSize.X;
+		else if (position.X < -limits.X)
+			newPosition.X += _viewportSize.X;
 
-		if (realPosition.Y > limits.Y)
-			newPosition.Y = -limits.Y;
-		else if (realPosition.Y < -limits.Y)
-			newPosition.Y = limits.Y;
+		if (position.Y > limits.Y)
+			newPosition.Y += -_viewportSize.Y;
+		else if (position.Y < -limits.Y)
+			newPosition.Y += _viewportSize.Y;
 
 		return newPosition;
 	}

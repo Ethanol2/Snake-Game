@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public partial class Player : Node2D
 {
@@ -19,10 +20,12 @@ public partial class Player : Node2D
     [Export] private int _growthQueue = 0;
 
     [ExportGroup("Debug/Snake Body")]
+    [Export] private Vector2 _headPosition { get => _base.Position; set {}}
     [Export] private Vector2[] _positions { get => _snakeBody == null ? null : _snakeBody.Positions.ToArray(); set {}}
 
     private _SnakeBody _snakeBody;
     private Vector2 _previous_dir;
+    private Vector2 deathPos = Vector2.Inf;
 
     // Properties
     public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
@@ -51,34 +54,55 @@ public partial class Player : Node2D
         _base.AreaEntered += OnCollisionEnter;
 
         _snakeBody = new _SnakeBody(_base);
+        _snakeBody.OnBodyColision += OnCollisionEnter;
     }
     public override void _Process(double delta)
     {
-        _realPosition += _direction * (float)delta * (_grid.SquareSize * _speed);
-        if (_edgeWrap)
-            _realPosition = _grid.WrapEdge(_realPosition, _base.Position);
+        _realPosition += (float)delta * (_grid.SquareSize * _speed) * _direction;
 
         Vector2 newPos = _grid.ConvertPosition(_realPosition);
 
         if (!_base.Position.IsEqualApprox(newPos))
         {
-            if (_snakeBody.CheckExists(_base.Position))
+            // To account for small errors in the math, and floating point bullshit, the diff is multiplied by 1.01 so that it always rounds >=1
+            int diff = Mathf.RoundToInt(((_base.Position - newPos) * _direction / _grid.SquareSize).Length() * 1.01f);
+
+            for (int i = 0; i < diff; i++)
             {
-                this.Log("Dead");
+                _base.Position = newPos - (_direction * _grid.SquareSize * (diff - i));
+
+                if (_edgeWrap)
+                {
+                    _base.Position = _grid.WrapEdge(_base.Position);
+                }
+
+                if (_growthQueue > 0)
+                {
+                    _snakeBody.AddPosition(_base.Position, this);
+                    _growthQueue--;
+                }
+                else
+                    _snakeBody.PushPosition(_base.Position);
             }
 
-            if (_growthQueue > 0)
+            if (_edgeWrap)
             {
-                _snakeBody.AddPosition(_base.Position, this);
-                _growthQueue--;
+                _realPosition = _grid.WrapEdge(_realPosition);
+                newPos = _grid.WrapEdge(newPos);
             }
-            else
-                _snakeBody.PushPosition(_base.Position);
 
             _base.Position = newPos;
             _previous_dir = _direction;
+
+            if (_snakeBody.CheckExists(_base.Position))
+            {
+                this.Log("Dead");
+                deathPos = _base.Position;
+
+            }
+
             OnPositionChanged?.Invoke(_base.Position);
-        }        
+        }
 
         if (_debug)
         {
@@ -97,11 +121,13 @@ public partial class Player : Node2D
     {
         if (_debug)
         {
-            DrawCircle(_realPosition, _grid.SquareSize.X / 5f, Colors.Red);
+            DrawCircle(_realPosition, _grid.SquareSize.X * 0.2f, Colors.Green);
             DrawLine(
                 _realPosition,
                 _realPosition + (_grid.SquareSize.X / 5f * _direction), Colors.Blue
             );
+
+            DrawCircle(deathPos, _grid.SquareSize.X * 0.5f, Colors.Red);
         }
     }
     public override void _UnhandledInput(InputEvent @event)
@@ -190,6 +216,8 @@ public partial class Player : Node2D
         public List<Area2D> Nodes;
         public Area2D BaseNode;
 
+        public event Action<Area2D> OnBodyColision;
+
         public _SnakeBody(Area2D baseNode)
         {
             Length = 0;
@@ -215,7 +243,9 @@ public partial class Player : Node2D
             Area2D newNode = BaseNode.Duplicate() as Area2D;
             parent.AddChild(newNode);
             Nodes.Add(newNode);
+            newNode.AreaEntered += PassColision;
             PushPosition(position);
         }
+        public void PassColision(Area2D area2D) => OnBodyColision?.Invoke(area2D);
     }
 }
