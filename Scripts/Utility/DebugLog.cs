@@ -23,7 +23,7 @@ public static class DebugLog
     {
         if (@object == null)
         {
-            GD.PrintErr($"[{node.Name}] NullReferenceException" + (message == null ? "" : " -> " + message));
+            GD.PrintErr($"[{node.Name}] NullReferenceException" + (message == null ? $" ->\n" + SliceStacktrace(System.Environment.StackTrace, 1) : " -> " + message));
 
             throw new NullReferenceException(message);
         }

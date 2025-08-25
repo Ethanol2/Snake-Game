@@ -28,6 +28,7 @@ public partial class Player : Node2D
     // Properties
     public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
     public float Speed { get => _speed; set { _speed = value; this.Log("Speed: " + _speed); } }
+    public bool Debug { get => _debug; set => _debug = value; }
 
     // Events
     public event Action<Vector2> OnPositionChanged;
@@ -56,6 +57,8 @@ public partial class Player : Node2D
 
         _snakeBody = new _SnakeBody(_base);
         _snakeBody.OnBodyColision += OnCollisionEnter;
+
+        _previous_dir = Vector2.Zero;
     }
     public override void _Process(double delta)
     {
@@ -85,7 +88,7 @@ public partial class Player : Node2D
 
             if (_snakeBody.CheckForOverlap(diff - 1, out Vector2 overlap, newPos))
             {
-                this.Log("Collided with Tail");
+                this.Log("Collided with Tail @" + overlap);
                 OnTailCollide?.Invoke(overlap);
             }
 
@@ -128,15 +131,15 @@ public partial class Player : Node2D
     }
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (Mathf.Abs(_previous_dir.Y) < 1f)
+        if (Mathf.Abs(_direction.Y) < 1f)
         {
-            if (@event.IsActionPressed("Up"))
+            if (@event.IsActionPressed("Up") && !_previous_dir.IsEqualApprox(Vector2.Down))
             {
                 _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Up);
                 _direction = Vector2.Up;
                 GetViewport().SetInputAsHandled();
             }
-            else if (@event.IsActionPressed("Down"))
+            else if (@event.IsActionPressed("Down") && !_previous_dir.IsEqualApprox(Vector2.Up))
             {
                 _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Down);
                 _direction = Vector2.Down;
@@ -145,13 +148,13 @@ public partial class Player : Node2D
         }
         else
         {
-            if (@event.IsActionPressed("Left"))
+            if (@event.IsActionPressed("Left") && !_previous_dir.IsEqualApprox(Vector2.Right))
             {
                 _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Left);
                 _direction = Vector2.Left;
                 GetViewport().SetInputAsHandled();
             }
-            else if (@event.IsActionPressed("Right"))
+            else if (@event.IsActionPressed("Right") && !_previous_dir.IsEqualApprox(Vector2.Left))
             {
                 _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Right);
                 _direction = Vector2.Right;

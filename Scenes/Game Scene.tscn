@@ -1,34 +1,51 @@
-[gd_scene load_steps=7 format=3 uid="uid://bsmgh5ylwfl1q"]
+[gd_scene load_steps=10 format=3 uid="uid://bsmgh5ylwfl1q"]
 
 [ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
 [ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="3_kry3j"]
 [ext_resource type="PackedScene" uid="uid://0k8e0n3850yn" path="res://Game Objects/target.tscn" id="4_jjvhh"]
 [ext_resource type="Curve" uid="uid://c8neyotonfhbv" path="res://Game Objects/difficulty_curve.tres" id="4_kry3j"]
+[ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="6_0km67"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_jjvhh"]
+font = ExtResource("6_0km67")
 font_size = 66
 
-[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_scoreLabel")]
+[sub_resource type="LabelSettings" id="LabelSettings_0km67"]
+font = ExtResource("6_0km67")
+font_size = 250
+
+[sub_resource type="LabelSettings" id="LabelSettings_0rvqk"]
+font = ExtResource("6_0km67")
+font_size = 50
+
+[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_GUICanvas", "_scoreLabel", "_gameOverLabel", "_clickToContinueLabel")]
 script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
 _player = NodePath("Player")
 _grid = NodePath("Grid")
 _maxSpeedAtPoints = 100
 _difficultyCurve = ExtResource("4_kry3j")
+_GUICanvas = NodePath("GUI")
 _scoreLabel = NodePath("GUI/Score Label")
+_gameOverLabel = NodePath("GUI/Game Over Label")
+_clickToContinueLabel = NodePath("GUI/Click to Continue Label")
 
-[node name="Grid" type="Node2D" parent="."]
-script = ExtResource("2_jjvhh")
-_drawGrid = true
-_gridColour = Color(1, 1, 1, 0.105882)
+[node name="BG" type="CanvasLayer" parent="."]
+layer = -1
+follow_viewport_enabled = true
 
-[node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("3_kry3j")]
-_grid = NodePath("../Grid")
-
-[node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
-position = Vector2(122, 0)
-_grid = NodePath("../Grid")
+[node name="ColorRect" type="ColorRect" parent="BG"]
+z_index = -10
+z_as_relative = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0, 0, 0, 1)
 
 [node name="GUI" type="CanvasLayer" parent="."]
 follow_viewport_enabled = true
@@ -45,3 +62,47 @@ label_settings = SubResource("LabelSettings_jjvhh")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
+
+[node name="Game Over Label" type="Label" parent="GUI"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -150.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Game Over!"
+label_settings = SubResource("LabelSettings_0km67")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Click to Continue Label" type="Label" parent="GUI"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = 150.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Click to Continue"
+label_settings = SubResource("LabelSettings_0rvqk")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Grid" type="Node2D" parent="."]
+script = ExtResource("2_jjvhh")
+_drawGrid = true
+_gridColour = Color(1, 1, 1, 0.105882)
+
+[node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("3_kry3j")]
+_grid = NodePath("../Grid")
+
+[node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
+position = Vector2(122, 0)
+_grid = NodePath("../Grid")

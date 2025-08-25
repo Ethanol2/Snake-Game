@@ -1,11 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://drcbagt1m3ca"]
+[gd_scene load_steps=4 format=3 uid="uid://drcbagt1m3ca"]
 
+[ext_resource type="Script" uid="uid://dor3gvgersy8n" path="res://Scripts/MainScene.cs" id="1_ke1vn"]
 [ext_resource type="PackedScene" uid="uid://b64hytns5ldbl" path="res://Scenes/Main Menu.tscn" id="1_tn1qc"]
 [ext_resource type="PackedScene" uid="uid://bsmgh5ylwfl1q" path="res://Scenes/Game Scene.tscn" id="2_ke1vn"]
 
-[node name="MainScene" type="Node"]
+[node name="MainScene" type="Node" node_paths=PackedStringArray("_mainMenu")]
+script = ExtResource("1_ke1vn")
+_gameScene = ExtResource("2_ke1vn")
+_mainMenu = NodePath("MainMenu")
+_forceDebug = true
 
 [node name="MainMenu" parent="." instance=ExtResource("1_tn1qc")]
 
-[node name="Game Scene" parent="." instance=ExtResource("2_ke1vn")]
-process_mode = 4
+[connection signal="pressed" from="MainMenu/Panel/VBoxContainer/Play Button" to="." method="_StartGame"]
+
+[editable path="MainMenu"]

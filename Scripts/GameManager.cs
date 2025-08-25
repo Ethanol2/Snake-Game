@@ -1,6 +1,6 @@
 using Godot;
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class GameManager : Node2D
 {
@@ -15,9 +15,13 @@ public partial class GameManager : Node2D
     [Export] private int _maxSpeedAtPoints = 50;
     [Export] private Curve _difficultyCurve;
     [Export] private bool _allowEdgeWrap = true;
+    [Export] private float _deathWaitTime = 0.5f;
 
     [ExportCategory("UI")]
+    [Export] private CanvasLayer _GUICanvas;
     [Export] private Label _scoreLabel;
+    [Export] private Label _gameOverLabel;
+    [Export] private Label _clickToContinueLabel;
 
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private int _score = 0;
@@ -27,16 +31,25 @@ public partial class GameManager : Node2D
         this.AssertNotNull(_player);
         this.AssertNotNull(_grid);
         this.AssertNotNull(_difficultyCurve);
-
+        this.AssertNotNull(_GUICanvas);
+        
         Position = GetViewportRect().Size / 2f;
 
         rng.Randomize();
         SpawnTarget(_target);
 
         UpdateScore(0);
+        if (_gameOverLabel != null)
+            _GUICanvas.RemoveChild(_gameOverLabel);
+        if (_clickToContinueLabel != null)
+            _GUICanvas.RemoveChild(_clickToContinueLabel);
+
         _player.Speed = _minSpeed;
 
+        _player.Debug = MainScene.ForceDebug;
+
         _player.OnTargetAquired += OnPlayerGetTarget;
+        _player.OnTailCollide += OnPlayerDeath;
     }
     public void OnPlayerGetTarget(Node2D target)
     {
@@ -48,6 +61,41 @@ public partial class GameManager : Node2D
         speed += _minSpeed;
 
         _player.Speed = speed;
+    }
+    public async void OnPlayerDeath(Vector2 deathPos)
+    {
+        GetTree().Paused = true;
+        if (_gameOverLabel != null)
+            _GUICanvas.AddChild(_gameOverLabel);
+
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            float delta = (float)GetProcessDeltaTime();
+            t += delta / _deathWaitTime;
+
+            await Task.Delay((int)(delta * 1000f));
+        }
+
+        if (_clickToContinueLabel != null)
+        {
+            _GUICanvas.AddChild(_clickToContinueLabel);
+        }
+
+        while (true)
+        {
+            float delta = (float)GetProcessDeltaTime();
+            await Task.Delay((int)(delta * 1000f));
+
+            if (Input.IsAnythingPressed())
+            {
+                break;
+            }
+        }
+
+        GetTree().Paused = false;
+        MainScene.ReturnToMenu();
     }
     private void SpawnTarget(Node2D target)
     {
@@ -84,4 +132,14 @@ public partial class GameManager : Node2D
         target.Position = _grid.ConvertCoordinateToPosition(spawn);
     }
     private void UpdateScore(int score) { if (_scoreLabel != null) _scoreLabel.Text = $"Score: {score}"; }
+
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+        if (@event.IsActionPressed("Pause"))
+        {
+            OnPlayerDeath(Vector2.Zero);
+            GetViewport().SetInputAsHandled();
+		}
+    }
 }
