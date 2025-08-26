@@ -18,10 +18,11 @@ public partial class GameManager : Node2D
     [Export] private float _deathWaitTime = 0.5f;
 
     [ExportCategory("UI")]
-    [Export] private CanvasLayer _GUICanvas;
+    [Export] private Control _GUIControl;
     [Export] private Label _scoreLabel;
     [Export] private Label _gameOverLabel;
     [Export] private Label _clickToContinueLabel;
+    [Export] private Control _leaderboard;
 
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private int _score = 0;
@@ -31,7 +32,7 @@ public partial class GameManager : Node2D
         this.AssertNotNull(_player);
         this.AssertNotNull(_grid);
         this.AssertNotNull(_difficultyCurve);
-        this.AssertNotNull(_GUICanvas);
+        this.AssertNotNull(_GUIControl);
         
         Position = GetViewportRect().Size / 2f;
 
@@ -40,9 +41,11 @@ public partial class GameManager : Node2D
 
         UpdateScore(0);
         if (_gameOverLabel != null)
-            _GUICanvas.RemoveChild(_gameOverLabel);
+            _GUIControl.RemoveChild(_gameOverLabel);
         if (_clickToContinueLabel != null)
-            _GUICanvas.RemoveChild(_clickToContinueLabel);
+            _GUIControl.RemoveChild(_clickToContinueLabel);
+        if (_leaderboard != null)
+            _GUIControl.RemoveChild(_leaderboard);
 
         _player.Speed = _minSpeed;
 
@@ -66,33 +69,34 @@ public partial class GameManager : Node2D
     {
         GetTree().Paused = true;
         if (_gameOverLabel != null)
-            _GUICanvas.AddChild(_gameOverLabel);
-
-
-        float t = 0f;
-        while (t < 1f)
         {
-            float delta = (float)GetProcessDeltaTime();
-            t += delta / _deathWaitTime;
+            _GUIControl.RemoveChild(_scoreLabel);
+            _GUIControl.AddChild(_gameOverLabel);
 
-            await Task.Delay((int)(delta * 1000f));
+            await Task.Delay((int)(_deathWaitTime * 1000));
+
+            await AnimateLabelToLabel(_scoreLabel, _gameOverLabel);
         }
 
         if (_clickToContinueLabel != null)
         {
-            _GUICanvas.AddChild(_clickToContinueLabel);
+            _GUIControl.AddChild(_clickToContinueLabel);
+        }
+        if (_leaderboard != null)
+        {
+            _GUIControl.AddChild(_leaderboard);
         }
 
         while (true)
-        {
-            float delta = (float)GetProcessDeltaTime();
-            await Task.Delay((int)(delta * 1000f));
-
-            if (Input.IsAnythingPressed())
             {
-                break;
+                float delta = (float)GetProcessDeltaTime();
+                await Task.Delay((int)(delta * 1000f));
+
+                if (Input.IsAnythingPressed())
+                {
+                    break;
+                }
             }
-        }
 
         GetTree().Paused = false;
         MainScene.ReturnToMenu();
@@ -132,14 +136,47 @@ public partial class GameManager : Node2D
         target.Position = _grid.ConvertCoordinateToPosition(spawn);
     }
     private void UpdateScore(int score) { if (_scoreLabel != null) _scoreLabel.Text = $"Score: {score}"; }
+    private async Task AnimateLabelToLabel(Label target, Label label, float duration = 1f)
+    {
+        label.ProcessMode = ProcessModeEnum.Always;
+        label.SetAnchorsPreset(Control.LayoutPreset.TopWide, false);
 
+        float scale = target.LabelSettings.FontSize / (float)label.LabelSettings.FontSize;
+        this.Log(scale);
+
+        Tween tween = label.CreateTween();
+        tween.SetParallel();
+        tween.TweenProperty(label, "scale", new Vector2(scale, scale), duration);
+        tween.TweenProperty(label, "position", target.Position, duration);
+
+        await Task.Delay((int)(duration * 1000f));
+
+        // Vector2 startPos = label.Position;
+        // Vector2 startSize = label.Size;
+        // float startRotation = label.Rotation;
+
+        // float t = 0f;
+        // while (t < 1f)
+        // {
+        //     t += (float)GetProcessDeltaTime() / duration;
+        //     label.Position = startPos.Lerp(target.Position, t);
+        //     label.Size = startSize.Lerp(target.Size, t);
+        //     label.Rotation = Mathf.Lerp(startRotation, target.Rotation, t);
+
+        //     await Task.Delay((int)(GetProcessDeltaTime() * 1000));
+        // }
+
+        // label.Position = target.Position;
+        // label.Size = target.Size;
+        // label.Rotation = target.Rotation;
+    }
 
 	public override void _UnhandledInput(InputEvent @event)
-	{
+    {
         if (@event.IsActionPressed("Pause"))
         {
             OnPlayerDeath(Vector2.Zero);
             GetViewport().SetInputAsHandled();
-		}
+        }
     }
 }
