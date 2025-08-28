@@ -21,11 +21,12 @@ public partial class GameManager : Node2D
     [Export] private Control _GUIControl;
     [Export] private Label _scoreLabel;
     [Export] private Label _gameOverLabel;
-    [Export] private Label _clickToContinueLabel;
-    [Export] private Control _leaderboard;
+    [Export] private Button _clickToContinueButton;
+    [Export] private Leaderboard _leaderboard;
 
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private int _score = 0;
+    private bool _gameOver = false;
 
     public override void _Ready()
     {
@@ -33,7 +34,7 @@ public partial class GameManager : Node2D
         this.AssertNotNull(_grid);
         this.AssertNotNull(_difficultyCurve);
         this.AssertNotNull(_GUIControl);
-        
+
         Position = GetViewportRect().Size / 2f;
 
         rng.Randomize();
@@ -42,8 +43,11 @@ public partial class GameManager : Node2D
         UpdateScore(0);
         if (_gameOverLabel != null)
             _GUIControl.RemoveChild(_gameOverLabel);
-        if (_clickToContinueLabel != null)
-            _GUIControl.RemoveChild(_clickToContinueLabel);
+        if (_clickToContinueButton != null)
+        {
+            _clickToContinueButton.ProcessMode = ProcessModeEnum.Always;
+            _GUIControl.RemoveChild(_clickToContinueButton);
+        }
         if (_leaderboard != null)
             _GUIControl.RemoveChild(_leaderboard);
 
@@ -78,32 +82,21 @@ public partial class GameManager : Node2D
             await AnimateLabelToLabel(_scoreLabel, _gameOverLabel);
         }
 
-        if (_clickToContinueLabel != null)
+        _gameOver = true;
+
+        if (_clickToContinueButton != null)
         {
-            _GUIControl.AddChild(_clickToContinueLabel);
+            _GUIControl.AddChild(_clickToContinueButton);
+            _clickToContinueButton.Pressed += ReturnToMenu;
         }
         if (_leaderboard != null)
         {
             _GUIControl.AddChild(_leaderboard);
+            _leaderboard.Init(_score);
         }
-
-        while (true)
-            {
-                float delta = (float)GetProcessDeltaTime();
-                await Task.Delay((int)(delta * 1000f));
-
-                if (Input.IsAnythingPressed())
-                {
-                    break;
-                }
-            }
-
-        GetTree().Paused = false;
-        MainScene.ReturnToMenu();
     }
     private void SpawnTarget(Node2D target)
     {
-
         if (_player.Length >= _grid.GridSquareCount)
         {
             GD.Print("Game Won!");
@@ -150,33 +143,23 @@ public partial class GameManager : Node2D
         tween.TweenProperty(label, "position", target.Position, duration);
 
         await Task.Delay((int)(duration * 1000f));
-
-        // Vector2 startPos = label.Position;
-        // Vector2 startSize = label.Size;
-        // float startRotation = label.Rotation;
-
-        // float t = 0f;
-        // while (t < 1f)
-        // {
-        //     t += (float)GetProcessDeltaTime() / duration;
-        //     label.Position = startPos.Lerp(target.Position, t);
-        //     label.Size = startSize.Lerp(target.Size, t);
-        //     label.Rotation = Mathf.Lerp(startRotation, target.Rotation, t);
-
-        //     await Task.Delay((int)(GetProcessDeltaTime() * 1000));
-        // }
-
-        // label.Position = target.Position;
-        // label.Size = target.Size;
-        // label.Rotation = target.Rotation;
     }
 
-	public override void _UnhandledInput(InputEvent @event)
+    public override void _UnhandledInput(InputEvent @event)
     {
         if (@event.IsActionPressed("Pause"))
         {
             OnPlayerDeath(Vector2.Zero);
             GetViewport().SetInputAsHandled();
         }
+    }
+    public void ReturnToMenu()
+    {
+        if (_leaderboard != null)
+        {
+            _leaderboard.SaveScore();
+        }
+        GetTree().Paused = false;
+        MainScene.ReturnToMenu();
     }
 }

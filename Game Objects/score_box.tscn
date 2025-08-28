@@ -1,0 +1,68 @@
+[gd_scene load_steps=4 format=3 uid="uid://cscy2kg8qii2w"]
+
+[ext_resource type="StyleBox" uid="uid://s0fctvpfqxjq" path="res://Art/leaderboard_panel.tres" id="1_brq8s"]
+[ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="2_2a081"]
+[ext_resource type="Script" uid="uid://dv326440shp5i" path="res://Game Objects/ScoreBox.cs" id="2_ka2oe"]
+
+[node name="Score Box" type="Panel" node_paths=PackedStringArray("_uiParent", "_placementLabel", "_nameInput", "_nameLabel", "_scoreLabel")]
+custom_minimum_size = Vector2(0, 70)
+theme_override_styles/panel = ExtResource("1_brq8s")
+script = ExtResource("2_ka2oe")
+_uiParent = NodePath("HBoxContainer")
+_placementLabel = NodePath("HBoxContainer/Placement")
+_nameInput = NodePath("HBoxContainer/Name Input")
+_nameLabel = NodePath("HBoxContainer/Name Label")
+_scoreLabel = NodePath("HBoxContainer/Score")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="Placement" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(85, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_2a081")
+theme_override_font_sizes/font_size = 40
+text = "10."
+vertical_alignment = 1
+
+[node name="Name Input" type="LineEdit" parent="HBoxContainer"]
+custom_minimum_size = Vector2(245, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/caret_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_2a081")
+theme_override_font_sizes/font_size = 40
+placeholder_text = "Your Name"
+caret_blink = true
+
+[node name="Name Label" type="Label" parent="HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(245, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("2_2a081")
+theme_override_font_sizes/font_size = 40
+text = "Your Name"
+
+[node name="Score" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(145, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_2a081")
+theme_override_font_sizes/font_size = 50
+text = "1000"
+horizontal_alignment = 2
+vertical_alignment = 1

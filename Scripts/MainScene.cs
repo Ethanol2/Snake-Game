@@ -7,14 +7,30 @@ public partial class MainScene : Node
 
 	[Export] private PackedScene _gameScene;
 	[Export] private Control _mainMenu;
+	[Export] private string _scoresSaveFile = "user://scores.json";
 
 	[ExportCategory("Debug")]
-	[Export] private bool _forceDebug = false;
+	[Export] private bool _forceDebugEditor = false;
+	[Export] private bool _forceDebugBuild = false;
 	[Export] private Node2D _activeGame;
 
 	// Properties
 	public static MainScene Instance => _Instance;
-	public static bool ForceDebug { get => _Instance == null ? false : _Instance._forceDebug; }
+	public static bool ForceDebug
+	{
+		get
+		{
+			if (_Instance)
+			{
+				if (Engine.IsEditorHint())
+					return _Instance._forceDebugEditor;
+				else
+					return _Instance._forceDebugBuild;
+			}
+
+			return false;
+		}
+	}
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -22,7 +38,7 @@ public partial class MainScene : Node
 		this.AssertNotNull(_gameScene);
 		this.AssertNotNull(_mainMenu);
 
-		if (_Instance != null && _Instance != this)
+		if (_Instance && _Instance != this)
 		{
 			this.Log("An instance already exists. Destroying");
 			QueueFree();
@@ -30,7 +46,15 @@ public partial class MainScene : Node
 		}
 
 		_Instance = this;
+		ScoreKeeper.Init(_scoresSaveFile);
 	}
+	public override void _Process(double delta)
+	{
+		if (Input.IsKeyPressed(Key.Key1))
+		{
+			ScoreKeeper.TestDataWrite();
+		}
+    }
 
 	public void _StartGame()
 	{
@@ -57,8 +81,9 @@ public partial class MainScene : Node
 	}
 
 	// Static Methods
-	public static void StartGame() { if (_Instance != null) _Instance._StartGame(); }
-	public static void ReturnToMenu() { if (_Instance != null) _Instance._ReturnToMenu(); }
-	public static void ExitGame() { if (_Instance != null) _Instance._ExitGame(); }
-	
+	public static void StartGame() { if (_Instance) _Instance._StartGame(); }
+	public static void ReturnToMenu() { if (_Instance) _Instance._ReturnToMenu(); }
+	public static void ExitGame() { if (_Instance) _Instance._ExitGame(); }
+
+	public static implicit operator bool(MainScene instance) => instance != null;	
 }

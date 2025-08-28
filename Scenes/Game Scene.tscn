@@ -1,9 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://bsmgh5ylwfl1q"]
+[gd_scene load_steps=15 format=3 uid="uid://bsmgh5ylwfl1q"]
 
 [ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
+[ext_resource type="PackedScene" uid="uid://cefrnitnbaomp" path="res://Game Objects/leaderboard.tscn" id="3_0rvqk"]
 [ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="3_kry3j"]
-[ext_resource type="StyleBox" uid="uid://s0fctvpfqxjq" path="res://Art/leaderboard_panel.tres" id="4_0rvqk"]
 [ext_resource type="PackedScene" uid="uid://0k8e0n3850yn" path="res://Game Objects/target.tscn" id="4_jjvhh"]
 [ext_resource type="Curve" uid="uid://c8neyotonfhbv" path="res://Game Objects/difficulty_curve.tres" id="4_kry3j"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="6_0km67"]
@@ -16,11 +16,20 @@ font_size = 66
 font = ExtResource("6_0km67")
 font_size = 250
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0rvqk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h35fg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ttv08"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4ad7p"]
+
 [sub_resource type="LabelSettings" id="LabelSettings_0rvqk"]
 font = ExtResource("6_0km67")
 font_size = 50
 
-[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueLabel", "_leaderboard")]
+[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueButton", "_leaderboard")]
+process_mode = 3
 script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
 _player = NodePath("Player")
@@ -30,7 +39,7 @@ _difficultyCurve = ExtResource("4_kry3j")
 _GUIControl = NodePath("GUI/Padding")
 _scoreLabel = NodePath("GUI/Padding/Score Label")
 _gameOverLabel = NodePath("GUI/Padding/Game Over Label")
-_clickToContinueLabel = NodePath("GUI/Padding/Click to Continue Label")
+_clickToContinueButton = NodePath("GUI/Padding/Click to Continue Button")
 _leaderboard = NodePath("GUI/Padding/Leaderboard")
 
 [node name="BG" type="CanvasLayer" parent="."]
@@ -64,52 +73,8 @@ offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Leaderboard" type="Panel" parent="GUI/Padding"]
+[node name="Leaderboard" parent="GUI/Padding" instance=ExtResource("3_0rvqk")]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -350.0
-offset_right = 250.0
-offset_bottom = 350.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = ExtResource("4_0rvqk")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI/Padding/Leaderboard"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Score Box" type="Panel" parent="GUI/Padding/Leaderboard/VBoxContainer"]
-custom_minimum_size = Vector2(0, 70)
-layout_mode = 2
-theme_override_styles/panel = ExtResource("4_0rvqk")
-
-[node name="TextEdit" type="TextEdit" parent="GUI/Padding/Leaderboard/VBoxContainer/Score Box"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 5.0
-offset_top = 5.0
-offset_right = -195.0
-offset_bottom = -5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/caret_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("6_0km67")
-theme_override_font_sizes/font_size = 50
-placeholder_text = "Your Name"
-scroll_fit_content_height = true
-scroll_fit_content_width = true
-caret_blink = true
 
 [node name="Score Label" type="Label" parent="GUI/Padding"]
 layout_mode = 1
@@ -144,7 +109,20 @@ label_settings = SubResource("LabelSettings_0km67")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Click to Continue Label" type="Label" parent="GUI/Padding"]
+[node name="Click to Continue Button" type="Button" parent="GUI/Padding"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_0rvqk")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_h35fg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ttv08")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_4ad7p")
+flat = true
+
+[node name="Click to Continue Label" type="Label" parent="GUI/Padding/Click to Continue Button"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -166,6 +144,7 @@ _drawGrid = true
 _gridColour = Color(1, 1, 1, 0.105882)
 
 [node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("3_kry3j")]
+process_mode = 1
 _grid = NodePath("../Grid")
 
 [node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
