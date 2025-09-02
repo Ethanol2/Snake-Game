@@ -7,12 +7,21 @@ public partial class MainScene : Node
 
 	[Export] private PackedScene _gameScene;
 	[Export] private Control _mainMenu;
+	[Export] private Leaderboard _leaderboard;
 	[Export] private string _scoresSaveFile = "user://scores.json";
+
+	[ExportCategory("Settings Controls")]
+	[Export] private Label _speedControlLabel;
+	[Export] private HSlider _speedControl;
+	[Export] private Label _gridControlLabel;
+	[Export] private HSlider _gridControl;
+	[Export] private CheckButton _edgeWrapControl;
 
 	[ExportCategory("Debug")]
 	[Export] private bool _forceDebugEditor = false;
 	[Export] private bool _forceDebugBuild = false;
 	[Export] private Node2D _activeGame;
+	[Export] private RuleSet _activeRules;
 
 	// Properties
 	public static MainScene Instance => _Instance;
@@ -31,12 +40,12 @@ public partial class MainScene : Node
 			return false;
 		}
 	}
+	public static RuleSet Rules => _Instance ? _Instance._activeRules : new RuleSet();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		this.AssertNotNull(_gameScene);
-		this.AssertNotNull(_mainMenu);
+		this.AssertNotNull(null, _gameScene, _mainMenu, _leaderboard);
 
 		if (_Instance && _Instance != this)
 		{
@@ -46,13 +55,21 @@ public partial class MainScene : Node
 		}
 
 		_Instance = this;
-		ScoreKeeper.Init(_scoresSaveFile);
+
+		DataKeeper.Init(_scoresSaveFile);
+
+		_activeRules = DataKeeper.ActiveRuleSet;
+		_activeRules.OnChanged += OnRulesChanged;
+
+		InverseSetRules();
+
+		_leaderboard.InitDisplayOnly(_activeRules);
 	}
 	public override void _Process(double delta)
 	{
 		if (Input.IsKeyPressed(Key.Key1))
 		{
-			ScoreKeeper.TestDataWrite();
+			DataKeeper.TestDataWrite();
 		}
     }
 
@@ -63,6 +80,9 @@ public partial class MainScene : Node
 			_activeGame = _gameScene.Instantiate() as Node2D;
 			AddChild(_activeGame);
 			RemoveChild(_mainMenu);
+
+			DataKeeper.ActiveRuleSet = _activeRules;
+			DataKeeper.WriteToDisk();
 		}
 	}
 	public void _ReturnToMenu()
@@ -74,10 +94,56 @@ public partial class MainScene : Node
 			_activeGame = null;
 		}
 		AddChild(_mainMenu);
+		_leaderboard.InitDisplayOnly(_activeRules);
 	}
 	public void _ExitGame()
 	{
 		GetTree().Quit();
+	}
+	public void _SetEdgeWrap(bool value) => _activeRules.EdgeWrap = value;
+	public void _SetSpeed(float speed) => _activeRules.SpeedDifficulty = (RuleSet.SPEEDMODE)Mathf.RoundToInt(speed);
+	public void _SetSpeed(RuleSet.SPEEDMODE speed) => _activeRules.SpeedDifficulty = speed;
+	public void _SetGridSize(float index) => _activeRules.SetGridSizeIndex(Mathf.RoundToInt(index));
+	public void _SetGridSize(int index) => _activeRules.SetGridSizeIndex(index);
+	public void _SetRules()
+	{
+		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
+			return;
+
+		_activeRules.EdgeWrap = !_edgeWrapControl.ButtonPressed;
+
+		_activeRules.SpeedDifficulty = (RuleSet.SPEEDMODE)Mathf.RoundToInt(_speedControl.Value);
+		_speedControlLabel.Text = "Speed: " + _activeRules.SpeedDifficulty;
+
+		_activeRules.SetGridSizeIndex(Mathf.RoundToInt(_gridControl.Value));
+		_gridControlLabel.Text = "Grid Size: " + _activeRules.GridSize;
+	}
+	private void InverseSetRules()
+	{
+		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
+			return;
+
+		_edgeWrapControl.ButtonPressed = _activeRules.EdgeWrap;
+
+		_speedControlLabel.Text = "Speed: " + _activeRules.SpeedDifficulty;
+		_speedControl.Value = (double)_activeRules.SpeedDifficulty;
+
+		_gridControlLabel.Text = "Grid Size: " + _activeRules.GridSize;
+		_gridControl.Value = _activeRules.GetGridSizeIndex();
+	}
+	private void OnRulesChanged(RuleSet ruleSet)
+	{
+		this.Log($"Rules changed to: " + ruleSet.GetIntValue());
+		_leaderboard.InitDisplayOnly(ruleSet);
+		_speedControlLabel.Text = "Speed: " + ruleSet.SpeedDifficulty;
+		_gridControlLabel.Text = "Grid Size: " + ruleSet.GridSize;
+
+	}
+	public void _ClearSaveFile()
+	{
+		DataKeeper.ClearSaveFile();
+		DataKeeper.ActiveRuleSet = _activeRules;
+		DataKeeper.WriteToDisk();
 	}
 
 	// Static Methods

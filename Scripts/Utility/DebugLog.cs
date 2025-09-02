@@ -41,6 +41,13 @@ public static class DebugLog
             node.AssertNotNull(obj, message);
         }
     }
+    public static bool CheckNull(params object[] objects)
+    {
+        bool isNull = false;
+        foreach (object obj in objects)
+            isNull = isNull || obj == null;
+        return isNull;
+    }
 #nullable disable
 
     private static string SliceStacktrace(string stacktrace, int lineCount)

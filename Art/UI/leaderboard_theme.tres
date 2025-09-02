@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://cijafpin37qh3"]
+
+[ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="1_h43s4"]
+
+[resource]
+default_font = ExtResource("1_h43s4")

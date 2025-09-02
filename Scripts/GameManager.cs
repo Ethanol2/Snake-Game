@@ -13,11 +13,14 @@ public partial class GameManager : Node2D
     [Export] private float _minSpeed = 3f;
     [Export] private float _maxSpeed = 35f;
     [Export] private int _maxSpeedAtPoints = 50;
-    [Export] private Curve _difficultyCurve;
+    [Export] private float _difficultyAdjust = 0.03f;
     [Export] private bool _allowEdgeWrap = true;
     [Export] private float _deathWaitTime = 0.5f;
 
     [ExportCategory("UI")]
+    [Export] private PauseMenu _pauseMenu;
+    [ExportSubgroup("GUI")]
+    [Export] private CanvasLayer _guiCanvas;
     [Export] private Control _GUIControl;
     [Export] private Label _scoreLabel;
     [Export] private Label _gameOverLabel;
@@ -28,17 +31,17 @@ public partial class GameManager : Node2D
     private int _score = 0;
     private bool _gameOver = false;
 
-    public override void _Ready()
+    // Lifecycle
+    public async override void _Ready()
     {
         this.AssertNotNull(_player);
         this.AssertNotNull(_grid);
-        this.AssertNotNull(_difficultyCurve);
         this.AssertNotNull(_GUIControl);
+        this.AssertNotNull(_pauseMenu);
 
         Position = GetViewportRect().Size / 2f;
 
         rng.Randomize();
-        SpawnTarget(_target);
 
         UpdateScore(0);
         if (_gameOverLabel != null)
@@ -51,26 +54,32 @@ public partial class GameManager : Node2D
         if (_leaderboard != null)
             _GUIControl.RemoveChild(_leaderboard);
 
-        _player.Speed = _minSpeed;
+        _allowEdgeWrap = MainScene.Rules.EdgeWrap;
 
-        _player.Debug = MainScene.ForceDebug;
+        if (MainScene.Instance)
+            _player.Debug = MainScene.ForceDebug;
 
         _player.OnTargetAquired += OnPlayerGetTarget;
         _player.OnTailCollide += OnPlayerDeath;
-    }
-    public void OnPlayerGetTarget(Node2D target)
-    {
-        SpawnTarget(target);
-        _score++;
-        UpdateScore(_score);
+        _player.OnEdgeWrapped += OnPlayerEdgeWrap;
 
-        float speed = _difficultyCurve.Sample(_score / (float)_maxSpeedAtPoints) * (_maxSpeed - _minSpeed);
-        speed += _minSpeed;
+        _guiCanvas.Layer = -1;
 
-        _player.Speed = speed;
+        _pauseMenu.Visible = false;
+        _pauseMenu.ContinueButton.Pressed += OnPausedContinue;
+        _pauseMenu.ExitButton.Pressed += OnPauseQuit;
+
+        while (!_player.IsNodeReady())
+            await Task.Delay((int)(GetProcessDeltaTime() * 1000d));
+
+        _minSpeed = BaseSpeedForGrid(_grid.GridWidth);
+        _player.Speed = _minSpeed;
+        SpawnTarget(_target);
     }
     public async void OnPlayerDeath(Vector2 deathPos)
     {
+        _guiCanvas.Layer = 1;
+
         GetTree().Paused = true;
         if (_gameOverLabel != null)
         {
@@ -92,9 +101,65 @@ public partial class GameManager : Node2D
         if (_leaderboard != null)
         {
             _GUIControl.AddChild(_leaderboard);
-            _leaderboard.Init(_score);
+
+            if (_score > 0 || _player.Debug)
+                _leaderboard.Init(_score, MainScene.Rules);
+            else
+                _leaderboard.InitDisplayOnly(MainScene.Rules);
         }
     }
+
+    // Callbacks
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed("Pause"))
+        {
+            if (_pauseMenu.Visible)
+                OnPausedContinue();
+            else
+                PauseGame();
+
+            GetViewport().SetInputAsHandled();
+        }
+    }
+    public void OnPlayerGetTarget(Node2D target)
+    {
+        SpawnTarget(target);
+        _score++;
+        UpdateScore(_score);
+
+        float speed = CalculateSpeed(_minSpeed, _score, _grid.GridWidth, _difficultyAdjust, MainScene.Rules.SpeedMultipliyer);
+
+        _player.Speed = speed;
+    }
+    private void OnPlayerEdgeWrap(Vector2 position)
+    {
+        if (!_allowEdgeWrap)
+        {
+            OnPlayerDeath(position);
+        }
+    }
+    private void PauseGame()
+    {
+        _scoreLabel.Visible = false;
+        _pauseMenu.Visible = true;
+
+        GetTree().Paused = true;
+    }
+    private void OnPausedContinue()
+    {
+        _scoreLabel.Visible = true;
+        _pauseMenu.Visible = false;
+
+        GetTree().Paused = false;
+    }
+    private void OnPauseQuit()
+    {
+        _pauseMenu.Visible = false;
+        OnPlayerDeath(Vector2.Zero);
+    }
+
+    // Utility
     private void SpawnTarget(Node2D target)
     {
         if (_player.Length >= _grid.GridSquareCount)
@@ -144,22 +209,44 @@ public partial class GameManager : Node2D
 
         await Task.Delay((int)(duration * 1000f));
     }
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (@event.IsActionPressed("Pause"))
-        {
-            OnPlayerDeath(Vector2.Zero);
-            GetViewport().SetInputAsHandled();
-        }
-    }
     public void ReturnToMenu()
     {
         if (_leaderboard != null)
         {
-            _leaderboard.SaveScore();
+            _leaderboard.SaveScore(MainScene.Rules);
         }
         GetTree().Paused = false;
         MainScene.ReturnToMenu();
     }
+
+    // ChatGPT function
+    private float CalculateSpeed(float baseSpeed, int score, int gridSize, float mod, float multiplier = 1f)
+    {
+        float maxSpeed = MaxSpeedForGrid(gridSize);
+
+        return baseSpeed + (maxSpeed - baseSpeed) * (1f - Mathf.Exp(-mod * score * multiplier));
+    }
+
+    // ChatGPT function
+    private float MaxSpeedForGrid(int gridSize)
+    {
+        float minCap = 7f;   // practical ceiling for small grids
+        float maxCap = 25f;  // ceiling for massive grids
+
+        // Normalize log scale between grid=10 → 0 and grid=1000 → 1
+        float t = Mathf.Log(gridSize) / Mathf.Log(1000f);
+        return Mathf.Lerp(minCap, maxCap, t);
+    }
+
+    // ChatGPT function
+    private float BaseSpeedForGrid(int gridSize)
+    {
+        float minBase = 2.5f;  // comfortable on 10×10
+        float maxBase = 8f;    // baseline for 1000×1000
+
+        float t = Mathf.Log(gridSize) / Mathf.Log(1000f); // normalize 0–1
+        return Mathf.Lerp(minBase, maxBase, t);
+    }
+
+
 }

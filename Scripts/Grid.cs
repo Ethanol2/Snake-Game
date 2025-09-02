@@ -23,11 +23,13 @@ public partial class Grid : Node2D
 	public int GridHeight => _verticalGridSize;
 	public int GridSquareCount => _gridSize * _verticalGridSize;
 	public Vector2 SquareSize => _squareSize;
+	//ublic bool Ready => _ready;
 
 	// Lifecycle
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		_gridSize = MainScene.Rules.GridSize;
 		_viewportSize = GetViewportRect().Size;
 		float aspectRatio = _viewportSize.Y / _viewportSize.X;
 		_verticalGridSize = (int)Mathf.Round(_gridSize * aspectRatio);
@@ -37,67 +39,9 @@ public partial class Grid : Node2D
 	// Callbacks
 	public override void _Draw()
 	{
-		if (!_drawGrid)
-			return;
-
-		Vector2 currentPos = new Vector2(_viewportSize.X / -2f, _viewportSize.Y / 2f);
-		currentPos.X -= _squareSize.X;
-
-		while (currentPos.X <= (_viewportSize.X / 2f) + 1)
-		{
-			DrawLine(
-				new Vector2(currentPos.X, currentPos.Y),
-				new Vector2(currentPos.X, -currentPos.Y),
-				_gridColour,
-				2f,
-				true
-				);
-
-			currentPos.X += _squareSize.X;
-		}
-
-		currentPos = new Vector2(_viewportSize.X / 2f, _viewportSize.Y / -2f);
-		currentPos.Y -= _squareSize.Y;
-
-		while (currentPos.Y <= (_viewportSize.Y / 2f) + 1)
-		{
-			DrawLine(
-				new Vector2(currentPos.X, currentPos.Y),
-				new Vector2(-currentPos.X, currentPos.Y),
-				_gridColour,
-				2f,
-				true
-				);
-
-			currentPos.Y += _squareSize.Y;
-		}
-
-		if (!_drawGridCenters)
-			return;
-
-		for (int x = 0; x < GridWidth; x++)
-		{
-			for (int y = 0; y < GridHeight; y++)
-			{
-				Vector2 labelPos = ConvertCoordinateToPosition(new Vector2I(x, y));
-
-				Vector2 size = Vector2.One * 0.2f;
-
-				DrawLine(
-					labelPos + SquareSize * size,
-					labelPos - SquareSize * size,
-					Colors.Blue.Lerp(Colors.Red, (float)x / GridWidth)
-				);
-
-				size.X *= -1f;
-
-				DrawLine(
-					labelPos + SquareSize * size,
-					labelPos - SquareSize * size,
-					Colors.Blue.Lerp(Colors.Red, (float)y / GridHeight)
-				);
-			}
-		}
+		DrawGrid();
+		DrawRedOutline();
+		DrawGridCenters();
 	}
 
 	// Utility
@@ -181,4 +125,91 @@ public partial class Grid : Node2D
 		return pos;
 	}
 
+	private void DrawGrid()
+	{
+		if (!_drawGrid)
+			return;
+
+		Vector2 currentPos = new Vector2(_viewportSize.X / -2f, _viewportSize.Y / 2f);
+		currentPos.X -= _squareSize.X;
+
+		while (currentPos.X <= (_viewportSize.X / 2f) + 1)
+		{
+			DrawLine(
+				new Vector2(currentPos.X, currentPos.Y),
+				new Vector2(currentPos.X, -currentPos.Y),
+				_gridColour,
+				2f,
+				true
+				);
+
+			currentPos.X += _squareSize.X;
+		}
+
+		currentPos = new Vector2(_viewportSize.X / 2f, _viewportSize.Y / -2f);
+		currentPos.Y -= _squareSize.Y;
+
+		while (currentPos.Y <= (_viewportSize.Y / 2f) + 1)
+		{
+			DrawLine(
+				new Vector2(currentPos.X, currentPos.Y),
+				new Vector2(-currentPos.X, currentPos.Y),
+				_gridColour,
+				2f,
+				true
+				);
+
+			currentPos.Y += _squareSize.Y;
+		}
+	}
+	private void DrawRedOutline()
+	{
+		if (MainScene.Rules.EdgeWrap)
+			return;
+
+		Vector2 currentPos = new Vector2(_viewportSize.X / -2f, _viewportSize.Y / -2f);
+		Color rectColour = Colors.Red * new Color(1f, 1f, 1f, 0.2f);
+
+		Rect2 verticalRect = new Rect2(currentPos, new Vector2(_squareSize.X, _viewportSize.Y));
+		DrawRect(verticalRect, rectColour);
+		verticalRect.Position *= new Vector2(-1f, 1f);
+		verticalRect.Position -= new Vector2(_squareSize.X, 0f);
+		DrawRect(verticalRect, rectColour);
+
+		currentPos.X += _squareSize.X;
+		Rect2 horiRect = new Rect2(currentPos, new Vector2(_viewportSize.X - (SquareSize.X * 2f), _squareSize.Y));
+		DrawRect(horiRect, rectColour);
+		horiRect.Position *= new Vector2(1f, -1f);
+		horiRect.Position -= new Vector2(0f, _squareSize.Y);
+		DrawRect(horiRect, rectColour);
+	}
+	private void DrawGridCenters()
+	{
+		if (!_drawGridCenters)
+				return;
+
+		for (int x = 0; x < GridWidth; x++)
+		{
+			for (int y = 0; y < GridHeight; y++)
+			{
+				Vector2 labelPos = ConvertCoordinateToPosition(new Vector2I(x, y));
+
+				Vector2 size = Vector2.One * 0.2f;
+
+				DrawLine(
+					labelPos + SquareSize * size,
+					labelPos - SquareSize * size,
+					Colors.Blue.Lerp(Colors.Red, (float)x / GridWidth)
+				);
+
+				size.X *= -1f;
+
+				DrawLine(
+					labelPos + SquareSize * size,
+					labelPos - SquareSize * size,
+					Colors.Blue.Lerp(Colors.Red, (float)y / GridHeight)
+				);
+			}
+		}
+	}
 }

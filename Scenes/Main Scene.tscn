@@ -1,16 +1,35 @@
-[gd_scene load_steps=4 format=3 uid="uid://drcbagt1m3ca"]
+[gd_scene load_steps=5 format=3 uid="uid://drcbagt1m3ca"]
 
 [ext_resource type="Script" uid="uid://dor3gvgersy8n" path="res://Scripts/MainScene.cs" id="1_ke1vn"]
 [ext_resource type="PackedScene" uid="uid://b64hytns5ldbl" path="res://Scenes/Main Menu.tscn" id="1_tn1qc"]
 [ext_resource type="PackedScene" uid="uid://bsmgh5ylwfl1q" path="res://Scenes/Game Scene.tscn" id="2_ke1vn"]
+[ext_resource type="Theme" uid="uid://h1f7iqhh7ycb" path="res://Art/Kenney/kenneyUI-yellow.tres" id="4_v87v2"]
 
-[node name="MainScene" type="Node" node_paths=PackedStringArray("_mainMenu")]
+[node name="MainScene" type="Node" node_paths=PackedStringArray("_mainMenu", "_leaderboard", "_speedControlLabel", "_speedControl", "_gridControlLabel", "_gridControl", "_edgeWrapControl")]
 script = ExtResource("1_ke1vn")
 _gameScene = ExtResource("2_ke1vn")
 _mainMenu = NodePath("MainMenu")
+_leaderboard = NodePath("MainMenu/Panel/Leaderboard")
+_speedControlLabel = NodePath("MainMenu/Panel/VBoxContainer/Speed Control/Label")
+_speedControl = NodePath("MainMenu/Panel/VBoxContainer/Speed Control/HSlider")
+_gridControlLabel = NodePath("MainMenu/Panel/VBoxContainer/Grid Size Control/Label")
+_gridControl = NodePath("MainMenu/Panel/VBoxContainer/Grid Size Control/HSlider")
+_edgeWrapControl = NodePath("MainMenu/Panel/VBoxContainer/Edge Wrap Control/Toggle Button")
 
 [node name="MainMenu" parent="." instance=ExtResource("1_tn1qc")]
 
-[connection signal="pressed" from="MainMenu/Panel/VBoxContainer/Play Button" to="." method="_StartGame"]
+[node name="Clear Scores" type="Button" parent="MainMenu/Panel" index="4"]
+layout_mode = 1
+offset_right = 114.324
+offset_bottom = 41.251
+theme = ExtResource("4_v87v2")
+text = "Clear Scores"
+
+[connection signal="value_changed" from="MainMenu/Panel/VBoxContainer/Speed Control/HSlider" to="." method="_SetSpeed"]
+[connection signal="value_changed" from="MainMenu/Panel/VBoxContainer/Grid Size Control/HSlider" to="." method="_SetGridSize"]
+[connection signal="toggled" from="MainMenu/Panel/VBoxContainer/Edge Wrap Control/Toggle Button" to="." method="_SetEdgeWrap"]
+[connection signal="pressed" from="MainMenu/Panel/Play Exit Buttons/Play Button" to="." method="_StartGame"]
+[connection signal="pressed" from="MainMenu/Panel/Play Exit Buttons/Exit Button" to="." method="_ExitGame"]
+[connection signal="pressed" from="MainMenu/Panel/Clear Scores" to="." method="_ClearSaveFile"]
 
 [editable path="MainMenu"]

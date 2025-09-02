@@ -1,0 +1,12 @@
+[gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://bptc3rruh12oq"]
+
+[ext_resource type="Texture2D" uid="uid://lv3f81hkrvhb" path="res://Art/bar_sprite.tres" id="1_fwd1k"]
+
+[resource]
+texture = ExtResource("1_fwd1k")
+texture_margin_left = 15.0
+texture_margin_top = 15.0
+texture_margin_right = 15.0
+texture_margin_bottom = 15.0
+region_rect = Rect2(0, 0, 128, 32)
+modulate_color = Color(0.903598, 0.903598, 0.903598, 1)

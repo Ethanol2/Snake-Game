@@ -2,12 +2,14 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 public partial class Player : Node2D
 {
     [ExportCategory("Parameters")]
     [Export] private float _speed = 2f;
     [Export] private Vector2 _direction = Vector2.Up;
+    [Export] private float _bodySizeRelativeToGrid = 0.85f;
 
     [ExportGroup("References")]
     [Export] private Grid _grid;
@@ -24,6 +26,7 @@ public partial class Player : Node2D
 
     private _SnakeBody _snakeBody;
     private Vector2 _previous_dir;
+    private Vector2 _next_dir;
 
     // Properties
     public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
@@ -37,8 +40,17 @@ public partial class Player : Node2D
     public event Action<Vector2> OnEdgeWrapped;
 
     // Lifecycle
-    public override void _Ready()
+    public async override void _Ready()
     {
+        _snakeBody = new _SnakeBody(_base);
+        _snakeBody.OnBodyColision += OnCollisionEnter;
+
+        ProcessMode = ProcessModeEnum.Disabled;
+        while (!_grid.IsNodeReady())
+        {
+            await Task.Delay((int)(GetProcessDeltaTime() * 1000d));
+        }
+
         if (_grid == null)
         {
             GD.PrintErr("Missing grid reference", this);
@@ -50,15 +62,15 @@ public partial class Player : Node2D
             return;
         }
 
-        _base.Scale = _grid.GetSpriteScale(_base.Sprite) * 0.95f;
+        _base.Scale = _grid.GetSpriteScale(_base.Sprite) * _bodySizeRelativeToGrid;
 
         _base.Position = _realPosition = _grid.ConvertPosition(_realPosition);
         _base.AreaEntered += OnCollisionEnter;
 
-        _snakeBody = new _SnakeBody(_base);
-        _snakeBody.OnBodyColision += OnCollisionEnter;
-
         _previous_dir = Vector2.Zero;
+        _next_dir = _direction;
+        
+        ProcessMode = ProcessModeEnum.Pausable;
     }
     public override void _Process(double delta)
     {
@@ -101,6 +113,12 @@ public partial class Player : Node2D
 
             _base.Position = newPos;
             _previous_dir = _direction;
+            
+            if (!_direction.IsEqualApprox(_next_dir))
+            {
+                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, _next_dir);
+                _direction = _next_dir;
+            }
 
             OnPositionChanged?.Invoke(_base.Position);
         }
@@ -133,31 +151,63 @@ public partial class Player : Node2D
     {
         if (Mathf.Abs(_direction.Y) < 1f)
         {
-            if (@event.IsActionPressed("Up") && !_previous_dir.IsEqualApprox(Vector2.Down))
+            if (@event.IsActionPressed("Up"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Up);
-                _direction = Vector2.Up;
+                if (!_previous_dir.IsEqualApprox(Vector2.Down))
+                {
+                    _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Up);
+                    _direction = Vector2.Up;
+                    _next_dir = _direction;
+                }
+                else
+                {
+                    _next_dir = Vector2.Up;
+                }
                 GetViewport().SetInputAsHandled();
             }
-            else if (@event.IsActionPressed("Down") && !_previous_dir.IsEqualApprox(Vector2.Up))
+            else if (@event.IsActionPressed("Down"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Down);
-                _direction = Vector2.Down;
+                if (!_previous_dir.IsEqualApprox(Vector2.Up))
+                {
+                    _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Down);
+                    _direction = Vector2.Down;
+                    _next_dir = _direction;
+                }
+                else
+                {
+                    _next_dir = Vector2.Down;
+                }
                 GetViewport().SetInputAsHandled();
             }
         }
         else
         {
-            if (@event.IsActionPressed("Left") && !_previous_dir.IsEqualApprox(Vector2.Right))
+            if (@event.IsActionPressed("Left"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Left);
-                _direction = Vector2.Left;
+                if (!_previous_dir.IsEqualApprox(Vector2.Right))
+                {
+                    _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Left);
+                    _direction = Vector2.Left;
+                    _next_dir = _direction;
+                }
+                else
+                {
+                    _next_dir = Vector2.Left;
+                }
                 GetViewport().SetInputAsHandled();
             }
-            else if (@event.IsActionPressed("Right") && !_previous_dir.IsEqualApprox(Vector2.Left))
+            else if (@event.IsActionPressed("Right"))
             {
-                _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Right);
-                _direction = Vector2.Right;
+                if (!_previous_dir.IsEqualApprox(Vector2.Left))
+                {
+                    _realPosition = SwapPositionOffset(_realPosition, _base.Position, _direction, Vector2.Right);
+                    _direction = Vector2.Right;
+                    _next_dir = _direction;
+                }
+                else
+                {
+                    _next_dir = Vector2.Right;
+                }
                 GetViewport().SetInputAsHandled();
             }
         }
@@ -226,6 +276,11 @@ public partial class Player : Node2D
         public bool CheckExists(Vector2 position) => Positions.Contains(position);
         public bool CheckForOverlap(int sliceCount, out Vector2 overlapPos, params Vector2[] extras)
         {
+            overlapPos = Vector2.Inf;
+
+            if (Positions.Count == 0)
+                return false;
+
             for (int i = 0; i < Positions.Count - sliceCount; i++)
             {
                 for (int k = Positions.Count - sliceCount; k < Positions.Count; k++)
@@ -245,7 +300,6 @@ public partial class Player : Node2D
                     }
                 }
             }
-            overlapPos = Vector2.Inf;
             return false;
         }
         public void PushPosition(Vector2 position)

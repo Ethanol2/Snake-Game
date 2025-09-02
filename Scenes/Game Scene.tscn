@@ -5,16 +5,15 @@
 [ext_resource type="PackedScene" uid="uid://cefrnitnbaomp" path="res://Game Objects/leaderboard.tscn" id="3_0rvqk"]
 [ext_resource type="PackedScene" uid="uid://v1o0c0q75qp7" path="res://Game Objects/player.tscn" id="3_kry3j"]
 [ext_resource type="PackedScene" uid="uid://0k8e0n3850yn" path="res://Game Objects/target.tscn" id="4_jjvhh"]
-[ext_resource type="Curve" uid="uid://c8neyotonfhbv" path="res://Game Objects/difficulty_curve.tres" id="4_kry3j"]
+[ext_resource type="LabelSettings" uid="uid://b7i3h1nehcwcs" path="res://Art/UI/score_label_settings.tres" id="4_ttv08"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="6_0km67"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_jjvhh"]
-font = ExtResource("6_0km67")
-font_size = 66
+[ext_resource type="PackedScene" uid="uid://0ti6m5xhjjyp" path="res://Scenes/Pause Menu.tscn" id="8_h35fg"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0km67"]
 font = ExtResource("6_0km67")
 font_size = 250
+outline_size = 10
+outline_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0rvqk"]
 
@@ -27,15 +26,18 @@ font_size = 250
 [sub_resource type="LabelSettings" id="LabelSettings_0rvqk"]
 font = ExtResource("6_0km67")
 font_size = 50
+outline_size = 10
+outline_color = Color(0, 0, 0, 1)
 
-[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueButton", "_leaderboard")]
+[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_pauseMenu", "_guiCanvas", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueButton", "_leaderboard")]
 process_mode = 3
 script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
 _player = NodePath("Player")
 _grid = NodePath("Grid")
 _maxSpeedAtPoints = 100
-_difficultyCurve = ExtResource("4_kry3j")
+_pauseMenu = NodePath("Pause Menu")
+_guiCanvas = NodePath("GUI")
 _GUIControl = NodePath("GUI/Padding")
 _scoreLabel = NodePath("GUI/Padding/Score Label")
 _gameOverLabel = NodePath("GUI/Padding/Game Over Label")
@@ -77,6 +79,7 @@ grow_vertical = 2
 layout_mode = 1
 
 [node name="Score Label" type="Label" parent="GUI/Padding"]
+z_index = -1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -86,7 +89,7 @@ pivot_offset = Vector2(790, 33.5)
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Score: 10"
-label_settings = SubResource("LabelSettings_jjvhh")
+label_settings = ExtResource("4_ttv08")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
@@ -138,15 +141,19 @@ label_settings = SubResource("LabelSettings_0rvqk")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
+z_index = 2
+position = Vector2(122, 0)
+_grid = NodePath("../Grid")
+
+[node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("3_kry3j")]
+process_mode = 1
+z_index = 2
+_grid = NodePath("../Grid")
+
 [node name="Grid" type="Node2D" parent="."]
 script = ExtResource("2_jjvhh")
 _drawGrid = true
 _gridColour = Color(1, 1, 1, 0.105882)
 
-[node name="Player" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("3_kry3j")]
-process_mode = 1
-_grid = NodePath("../Grid")
-
-[node name="Target" parent="." node_paths=PackedStringArray("_grid") instance=ExtResource("4_jjvhh")]
-position = Vector2(122, 0)
-_grid = NodePath("../Grid")
+[node name="Pause Menu" parent="." instance=ExtResource("8_h35fg")]

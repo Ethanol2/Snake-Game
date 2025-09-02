@@ -1,9 +1,9 @@
 [gd_resource type="Theme" load_steps=5 format=3 uid="uid://ckwsx7j4qjk7c"]
 
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="1_aqgx7"]
-[ext_resource type="StyleBox" uid="uid://wgvjw1ex52ej" path="res://Art/UI/button_hover_style.tres" id="2_e7ln2"]
-[ext_resource type="StyleBox" uid="uid://ce0o7wlgvr5sq" path="res://Art/UI/button_normal_style.tres" id="3_6ftd7"]
-[ext_resource type="StyleBox" uid="uid://btnftjwuqxbqc" path="res://Art/UI/button_down_style.tres" id="4_ibws3"]
+[ext_resource type="StyleBox" uid="uid://wgvjw1ex52ej" path="res://Art/UI/Buttons/Green/button_hover_style.tres" id="2_e7ln2"]
+[ext_resource type="StyleBox" uid="uid://ce0o7wlgvr5sq" path="res://Art/UI/Buttons/Green/button_normal_style.tres" id="3_6ftd7"]
+[ext_resource type="StyleBox" uid="uid://btnftjwuqxbqc" path="res://Art/UI/Buttons/Green/button_down_style.tres" id="4_ibws3"]
 
 [resource]
 default_font = ExtResource("1_aqgx7")
@@ -22,7 +22,6 @@ Button/colors/icon_hover_pressed_color = Color(0, 0, 0, 1)
 Button/colors/icon_normal_color = Color(0, 0, 0, 1)
 Button/colors/icon_pressed_color = Color(0, 0, 0, 1)
 Button/constants/align_to_largest_stylebox = 0
-Button/constants/h_separation = 0
 Button/constants/icon_max_width = 0
 Button/constants/outline_size = 10
 Button/font_sizes/font_size = 35

@@ -1,7 +1,25 @@
-[gd_scene load_steps=5 format=3 uid="uid://b64hytns5ldbl"]
+[gd_scene load_steps=10 format=3 uid="uid://b64hytns5ldbl"]
 
-[ext_resource type="Theme" uid="uid://ckwsx7j4qjk7c" path="res://Art/UI/theme.tres" id="1_8saeu"]
 [ext_resource type="LabelSettings" uid="uid://cirx63ei5lmx5" path="res://Art/UI/title_label_settings.tres" id="1_853f1"]
+[ext_resource type="Theme" uid="uid://bnhngmri4tfgr" path="res://Art/Kenney/kenneyUI-green.tres" id="1_eotax"]
+[ext_resource type="PackedScene" uid="uid://cefrnitnbaomp" path="res://Game Objects/leaderboard.tscn" id="2_mjet1"]
+[ext_resource type="Theme" uid="uid://mbsg4xqnedxi" path="res://Art/Kenney/kenneyUI-red.tres" id="4_eotax"]
+[ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="5_udm2q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mjet1"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0126h"]
+bg_color = Color(0.486275, 0.945098, 0.996078, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [sub_resource type="InputEventKey" id="InputEventKey_853f1"]
 device = -1
@@ -19,16 +37,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("1_8saeu")
-
-[node name="Background" type="ColorRect" parent="Panel"]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -37,19 +46,37 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.49, 0.949, 1, 1)
 
-[node name="Title" type="Label" parent="Panel"]
+[node name="Panel" type="Panel" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -52.5
-offset_top = -174.0
-offset_right = 52.5
-offset_bottom = -151.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(780, 430)
+theme = ExtResource("1_eotax")
+theme_override_styles/panel = SubResource("StyleBoxFlat_mjet1")
+
+[node name="Leaderboard" parent="Panel" instance=ExtResource("2_mjet1")]
+layout_mode = 1
+offset_top = -300.0
+offset_bottom = 300.0
+pivot_offset = Vector2(0, 300)
+theme_override_styles/panel = SubResource("StyleBoxFlat_0126h")
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -301.5
+offset_right = 301.5
+offset_bottom = 97.0
+grow_horizontal = 2
 text = "Special Snake"
 label_settings = ExtResource("1_853f1")
 horizontal_alignment = 1
@@ -57,21 +84,139 @@ vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 6
+anchor_left = 1.0
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -50.0
-offset_right = 250.0
-offset_bottom = 250.0
-grow_horizontal = 2
+offset_left = -300.0
+offset_top = -200.0
+offset_bottom = 200.0
+grow_horizontal = 0
 grow_vertical = 2
 
-[node name="Play Button" type="Button" parent="Panel/VBoxContainer"]
+[node name="Speed Control" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="HSlider" type="HSlider" parent="Panel/VBoxContainer/Speed Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -35.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(150, 0)
+max_value = 5.0
+value = 2.0
+tick_count = 6
+ticks_on_borders = true
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/Speed Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+text = "Speed : Normal"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Grid Size Control" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="HSlider" type="HSlider" parent="Panel/VBoxContainer/Grid Size Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -35.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(150, 0)
+max_value = 9.0
+value = 3.0
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer/Grid Size Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+text = "Grid Size: 50"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Edge Wrap Control" type="Control" parent="Panel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
+
+[node name="Toggle Button" type="CheckButton" parent="Panel/VBoxContainer/Edge Wrap Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 12.5
+offset_bottom = -12.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(50, 0)
+theme_override_font_sizes/font_size = 25
+text = "Edge Wrap"
+expand_icon = true
+
+[node name="Play Exit Buttons" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(780, 50)
+
+[node name="Play Button" type="Button" parent="Panel/Play Exit Buttons"]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -92.0
+offset_top = -50.0
+offset_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 35
 shortcut = SubResource("Shortcut_8saeu")
 text = "Start"
+
+[node name="Exit Button" type="Button" parent="Panel/Play Exit Buttons"]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -50.0
+offset_right = 71.0
+offset_bottom = 50.0
+grow_vertical = 2
+theme = ExtResource("4_eotax")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("5_udm2q")
+theme_override_font_sizes/font_size = 35
+shortcut = SubResource("Shortcut_8saeu")
+text = "Exit"
