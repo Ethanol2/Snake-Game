@@ -62,6 +62,7 @@ public partial class MainScene : Node
 		_activeRules.OnChanged += OnRulesChanged;
 
 		InverseSetRules();
+		RulesControlsSubscribe();
 
 		_leaderboard.InitDisplayOnly(_activeRules);
 	}
@@ -83,6 +84,8 @@ public partial class MainScene : Node
 
 			DataKeeper.ActiveRuleSet = _activeRules;
 			DataKeeper.WriteToDisk();
+
+			AudioManager.PlayGameStart();
 		}
 	}
 	public void _ReturnToMenu()
@@ -101,9 +104,9 @@ public partial class MainScene : Node
 		GetTree().Quit();
 	}
 	public void _SetEdgeWrap(bool value) => _activeRules.EdgeWrap = value;
-	public void _SetSpeed(float speed) => _activeRules.SpeedDifficulty = (RuleSet.SPEEDMODE)Mathf.RoundToInt(speed);
+	public void _SetSpeed(double speed) => _activeRules.SpeedDifficulty = (RuleSet.SPEEDMODE)Mathf.RoundToInt(speed);
 	public void _SetSpeed(RuleSet.SPEEDMODE speed) => _activeRules.SpeedDifficulty = speed;
-	public void _SetGridSize(float index) => _activeRules.SetGridSizeIndex(Mathf.RoundToInt(index));
+	public void _SetGridSize(double index) => _activeRules.SetGridSizeIndex(Mathf.RoundToInt(index));
 	public void _SetGridSize(int index) => _activeRules.SetGridSizeIndex(index);
 	public void _SetRules()
 	{
@@ -117,6 +120,15 @@ public partial class MainScene : Node
 
 		_activeRules.SetGridSizeIndex(Mathf.RoundToInt(_gridControl.Value));
 		_gridControlLabel.Text = "Grid Size: " + _activeRules.GridSize;
+	}
+	private void RulesControlsSubscribe()
+	{
+		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
+			return;
+
+		_edgeWrapControl.Toggled += _SetEdgeWrap;
+		_speedControl.ValueChanged += _SetSpeed;
+		_gridControl.ValueChanged += _SetGridSize;
 	}
 	private void InverseSetRules()
 	{

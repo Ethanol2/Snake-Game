@@ -27,9 +27,14 @@ public partial class GameManager : Node2D
     [Export] private Button _clickToContinueButton;
     [Export] private Leaderboard _leaderboard;
 
+    [ExportCategory("Music")]
+    [Export] private AudioStreamPlayer _regularMusic;
+    [Export] private AudioStreamPlayer _battleMusic;
+
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private int _score = 0;
     private bool _gameOver = false;
+    private float _battleMusicStartDist;
 
     // Lifecycle
     public async override void _Ready()
@@ -75,7 +80,19 @@ public partial class GameManager : Node2D
         _minSpeed = BaseSpeedForGrid(_grid.GridWidth);
         _player.Speed = _minSpeed;
         SpawnTarget(_target);
+
+        _battleMusicStartDist = (_grid.GridWidth * 0.1f * _grid.SquareSize).LengthSquared(); 
     }
+    public override void _Process(double delta)
+    {
+        if (_regularMusic == null || _battleMusic == null) return;
+        
+        float playerDistToTarget = _target.Position.DistanceSquaredTo(_player.Position);
+        float volume = Mathf.InverseLerp(1f, 0f, _battleMusicStartDist / playerDistToTarget);
+        _regularMusic.VolumeLinear = 1f - volume;
+        _battleMusic.VolumeLinear = volume;        
+    }
+
     public async void OnPlayerDeath(Vector2 deathPos)
     {
         _guiCanvas.Layer = 1;
@@ -131,6 +148,8 @@ public partial class GameManager : Node2D
         float speed = CalculateSpeed(_minSpeed, _score, _grid.GridWidth, _difficultyAdjust, MainScene.Rules.SpeedMultipliyer);
 
         _player.Speed = speed;
+
+        AudioManager.PlayGameSuccess();
     }
     private void OnPlayerEdgeWrap(Vector2 position)
     {

@@ -1,0 +1,32 @@
+[gd_scene load_steps=13 format=3 uid="uid://cc5xbbt48xdfm"]
+
+[ext_resource type="Script" uid="uid://dy4xrvvxy63da" path="res://Scripts/AudioManager.cs" id="1_mrd85"]
+[ext_resource type="AudioStream" uid="uid://cvx37u4jpcoco" path="res://Sound/UI/ui_focux_change.mp3" id="2_f0oly"]
+[ext_resource type="AudioStream" uid="uid://gerceb1qvaqy" path="res://Sound/UI/ui_pressed.mp3" id="3_ptoky"]
+[ext_resource type="AudioStream" uid="uid://cmh7xnww6f3au" path="res://Sound/UI/ui_toggle_false.mp3" id="4_ikiqp"]
+[ext_resource type="AudioStream" uid="uid://b8lcg7gbjbpc3" path="res://Sound/UI/02_Game Start_v1.wav" id="5_57dav"]
+[ext_resource type="AudioStream" uid="uid://bantmyt4haibi" path="res://Sound/Pickup Coin2.wav" id="6_f4u5s"]
+[ext_resource type="AudioStream" uid="uid://b2qa4ffuondx" path="res://Sound/Pickup Coin3.wav" id="7_yphog"]
+[ext_resource type="AudioStream" uid="uid://bqvwwn2o4tqww" path="res://Sound/Pickup Coin.wav" id="8_fs7gu"]
+[ext_resource type="AudioStream" uid="uid://ddhkwy1blw5ph" path="res://Sound/02_Game Over_v1.wav" id="9_k7n7l"]
+[ext_resource type="AudioStream" uid="uid://dytm0woswfyr5" path="res://Sound/02_Game Over_v2.wav" id="10_hcsnn"]
+[ext_resource type="AudioStream" uid="uid://b4b4nmqq3hm75" path="res://Sound/02_Game Over_v3.wav" id="11_r7ngy"]
+[ext_resource type="AudioStream" uid="uid://sdh37ekbgiq7" path="res://Sound/02_Game Over_v4.wav" id="12_xqh71"]
+
+[node name="AudioManager" type="Node" node_paths=PackedStringArray("_audioStreamPlayers")]
+script = ExtResource("1_mrd85")
+_audioStreamPlayers = [NodePath("AudioStreamPlayer"), NodePath("AudioStreamPlayer2"), NodePath("AudioStreamPlayer3")]
+_uiSelect = Array[AudioStream]([ExtResource("2_f0oly")])
+_uiClick = Array[AudioStream]([ExtResource("3_ptoky")])
+_toggleOn = ExtResource("3_ptoky")
+_toggleOff = ExtResource("4_ikiqp")
+_gameStart = Array[AudioStream]([ExtResource("5_57dav")])
+_success = Array[AudioStream]([ExtResource("6_f4u5s"), ExtResource("7_yphog"), ExtResource("8_fs7gu")])
+_death = Array[AudioStream]([ExtResource("9_k7n7l"), ExtResource("10_hcsnn"), ExtResource("11_r7ngy"), ExtResource("12_xqh71")])
+_celebration = Array[AudioStream]([])
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]

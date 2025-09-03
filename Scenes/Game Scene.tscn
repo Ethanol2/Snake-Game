@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bsmgh5ylwfl1q"]
+[gd_scene load_steps=16 format=3 uid="uid://bsmgh5ylwfl1q"]
 
 [ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
@@ -8,6 +8,7 @@
 [ext_resource type="LabelSettings" uid="uid://b7i3h1nehcwcs" path="res://Art/UI/score_label_settings.tres" id="4_ttv08"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="6_0km67"]
 [ext_resource type="PackedScene" uid="uid://0ti6m5xhjjyp" path="res://Scenes/Pause Menu.tscn" id="8_h35fg"]
+[ext_resource type="AudioStream" uid="uid://dk5l68b55xvs6" path="res://Sound/Music/Goblins_Den_(Regular).wav" id="9_ttv08"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0km67"]
 font = ExtResource("6_0km67")
@@ -29,7 +30,7 @@ font_size = 50
 outline_size = 10
 outline_color = Color(0, 0, 0, 1)
 
-[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_pauseMenu", "_guiCanvas", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueButton", "_leaderboard")]
+[node name="Game Scene" type="Node2D" node_paths=PackedStringArray("_target", "_player", "_grid", "_pauseMenu", "_guiCanvas", "_GUIControl", "_scoreLabel", "_gameOverLabel", "_clickToContinueButton", "_leaderboard", "_regularMusic", "_battleMusic")]
 process_mode = 3
 script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
@@ -43,6 +44,8 @@ _scoreLabel = NodePath("GUI/Padding/Score Label")
 _gameOverLabel = NodePath("GUI/Padding/Game Over Label")
 _clickToContinueButton = NodePath("GUI/Padding/Click to Continue Button")
 _leaderboard = NodePath("GUI/Padding/Leaderboard")
+_regularMusic = NodePath("Music")
+_battleMusic = NodePath("Battle Music")
 
 [node name="BG" type="CanvasLayer" parent="."]
 layer = -1
@@ -157,3 +160,12 @@ _drawGrid = true
 _gridColour = Color(1, 1, 1, 0.105882)
 
 [node name="Pause Menu" parent="." instance=ExtResource("8_h35fg")]
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_ttv08")
+autoplay = true
+
+[node name="Battle Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_ttv08")
+volume_db = -80.0
+autoplay = true

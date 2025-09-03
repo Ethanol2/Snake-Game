@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://0ti6m5xhjjyp"]
 
-[ext_resource type="Script" uid="uid://dgxnd85waux8v" path="res://Scenes/PauseMenu.cs" id="1_64b2t"]
+[ext_resource type="Script" uid="uid://dgxnd85waux8v" path="res://Scripts/PauseMenu.cs" id="1_64b2t"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="1_x00e2"]
 [ext_resource type="LabelSettings" uid="uid://b7i3h1nehcwcs" path="res://Art/UI/score_label_settings.tres" id="2_1p8f4"]
 [ext_resource type="Theme" uid="uid://bnhngmri4tfgr" path="res://Art/Kenney/kenneyUI-green.tres" id="3_64b2t"]
