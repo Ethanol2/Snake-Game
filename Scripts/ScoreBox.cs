@@ -119,4 +119,9 @@ public partial class ScoreBox : Panel
 		_nameInput.GrabFocus();
 		_blinkT = 0f;
 	}
+	public void SetPlacement(int place)
+	{
+		_placement = place;
+		_placementLabel.Text =  $"{place}.";
+	}
 }

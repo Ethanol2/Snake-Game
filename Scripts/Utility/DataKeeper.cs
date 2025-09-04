@@ -25,6 +25,11 @@ public class DataKeeper
 		get => IsInitialized() ? _instance._data.ActiveRuleSet : 12000;
 		set { if (IsInitialized()) _instance._data.ActiveRuleSet = value; }
 	}
+	public static bool MusicEnabled
+	{
+		get => IsInitialized() ? _instance._data.MusicEnabled : true;
+		set { if (IsInitialized()) _instance._data.MusicEnabled = value; }
+	}
 
 	public static void Init(string filePath)
 	{
@@ -177,6 +182,8 @@ public class DataKeeper
 		public string LatestName { get; set; } = "";
 		public List<RuleSetScores> Scores { get; set; } = new List<RuleSetScores>();
 		public int ActiveRuleSet { get; set; } = -1;
+		public bool MusicEnabled { get; set; } = true;
+
 
 		public class RuleSetScores
 		{

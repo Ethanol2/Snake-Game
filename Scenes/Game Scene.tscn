@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bsmgh5ylwfl1q"]
+[gd_scene load_steps=17 format=3 uid="uid://bsmgh5ylwfl1q"]
 
 [ext_resource type="Script" uid="uid://cdh3uj8pk0jti" path="res://Scripts/GameManager.cs" id="1_jjvhh"]
 [ext_resource type="Script" uid="uid://cnmd1thpxpqc3" path="res://Scripts/Grid.cs" id="2_jjvhh"]
@@ -9,6 +9,7 @@
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="6_0km67"]
 [ext_resource type="PackedScene" uid="uid://0ti6m5xhjjyp" path="res://Scenes/Pause Menu.tscn" id="8_h35fg"]
 [ext_resource type="AudioStream" uid="uid://dk5l68b55xvs6" path="res://Sound/Music/Goblins_Den_(Regular).wav" id="9_ttv08"]
+[ext_resource type="AudioStream" uid="uid://cbal6q7rc8r7t" path="res://Sound/Music/Goblins_Dance_(Battle).wav" id="10_4ad7p"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0km67"]
 font = ExtResource("6_0km67")
@@ -36,7 +37,6 @@ script = ExtResource("1_jjvhh")
 _target = NodePath("Target")
 _player = NodePath("Player")
 _grid = NodePath("Grid")
-_maxSpeedAtPoints = 100
 _pauseMenu = NodePath("Pause Menu")
 _guiCanvas = NodePath("GUI")
 _GUIControl = NodePath("GUI/Padding")
@@ -127,6 +127,7 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_h35fg")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ttv08")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_4ad7p")
 flat = true
+metadata/Make_Sound = false
 
 [node name="Click to Continue Label" type="Label" parent="GUI/Padding/Click to Continue Button"]
 layout_mode = 1
@@ -163,9 +164,10 @@ _gridColour = Color(1, 1, 1, 0.105882)
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9_ttv08")
+volume_db = 3.0
 autoplay = true
 
 [node name="Battle Music" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("9_ttv08")
-volume_db = -80.0
+stream = ExtResource("10_4ad7p")
+volume_db = 3.0
 autoplay = true

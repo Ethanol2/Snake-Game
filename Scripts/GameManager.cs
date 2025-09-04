@@ -12,7 +12,6 @@ public partial class GameManager : Node2D
     [ExportCategory("Game Settings")]
     [Export] private float _minSpeed = 3f;
     [Export] private float _maxSpeed = 35f;
-    [Export] private int _maxSpeedAtPoints = 50;
     [Export] private float _difficultyAdjust = 0.03f;
     [Export] private bool _allowEdgeWrap = true;
     [Export] private float _deathWaitTime = 0.5f;
@@ -30,6 +29,9 @@ public partial class GameManager : Node2D
     [ExportCategory("Music")]
     [Export] private AudioStreamPlayer _regularMusic;
     [Export] private AudioStreamPlayer _battleMusic;
+    [Export] private float _musicOverlapDist = 0.3f;
+    [Export] private bool _drawOverlapDist = false;
+    [Export] private float _musicVolumeChaseSpeed = 0.3f;
 
     private RandomNumberGenerator rng = new RandomNumberGenerator();
     private int _score = 0;
@@ -74,28 +76,75 @@ public partial class GameManager : Node2D
         _pauseMenu.ContinueButton.Pressed += OnPausedContinue;
         _pauseMenu.ExitButton.Pressed += OnPauseQuit;
 
+        if (!DataKeeper.MusicEnabled)
+        {
+            _battleMusic.VolumeLinear = 0f;
+            _regularMusic.VolumeLinear = 0f;
+        }
+
         while (!_player.IsNodeReady())
-            await Task.Delay((int)(GetProcessDeltaTime() * 1000d));
+                await Task.Delay((int)(GetProcessDeltaTime() * 1000d));
 
         _minSpeed = BaseSpeedForGrid(_grid.GridWidth);
         _player.Speed = _minSpeed;
         SpawnTarget(_target);
 
-        _battleMusicStartDist = (_grid.GridWidth * 0.1f * _grid.SquareSize).LengthSquared(); 
+        _battleMusicStartDist = (_grid.GridWidth * _musicOverlapDist * _grid.SquareSize).LengthSquared(); 
     }
     public override void _Process(double delta)
     {
-        if (_regularMusic == null || _battleMusic == null) return;
+        if (_regularMusic == null || _battleMusic == null || !DataKeeper.MusicEnabled) return;
+
+        if (_gameOver)
+        {
+            _regularMusic.VolumeLinear = Mathf.Lerp(_regularMusic.VolumeLinear, 0f, _musicVolumeChaseSpeed / 2f);
+            _battleMusic.VolumeLinear = Mathf.Lerp(_battleMusic.VolumeLinear, 0f, _musicVolumeChaseSpeed / 2f);            
+        }
+        else
+        {
+            float playerDistToTarget;
+
+            if (_allowEdgeWrap)
+            {
+                Vector2 vpSize = GetViewportRect().Size;
+                List<float> dists = new List<float>()
+            {
+                (_target.Position + (vpSize * Vector2.Right)).DistanceSquaredTo(_player.RealPosition),
+                (_target.Position + (vpSize * Vector2.Left)).DistanceSquaredTo(_player.RealPosition),
+                (_target.Position + (vpSize * Vector2.Up)).DistanceSquaredTo(_player.RealPosition),
+                (_target.Position + (vpSize * Vector2.Down)).DistanceSquaredTo(_player.RealPosition),
+                _target.Position.DistanceSquaredTo(_player.RealPosition)
+            };
+                dists.Sort();
+                playerDistToTarget = dists[0];
+            }
+            else
+            {
+                playerDistToTarget = _target.Position.DistanceSquaredTo(_player.RealPosition);
+            }
+
+            float volume = Mathf.Clamp(playerDistToTarget / _battleMusicStartDist, 0f, 1f);
+
+            _regularMusic.VolumeLinear = Mathf.Lerp(_regularMusic.VolumeLinear, volume, _musicVolumeChaseSpeed);
+            _battleMusic.VolumeLinear = Mathf.Lerp(_battleMusic.VolumeLinear, 1f - volume, _musicVolumeChaseSpeed);
+        }
         
-        float playerDistToTarget = _target.Position.DistanceSquaredTo(_player.Position);
-        float volume = Mathf.InverseLerp(1f, 0f, _battleMusicStartDist / playerDistToTarget);
-        _regularMusic.VolumeLinear = 1f - volume;
-        _battleMusic.VolumeLinear = volume;        
+        if (_drawOverlapDist)
+            QueueRedraw();
+    }
+    public override void _Draw()
+    {
+        if (_drawOverlapDist)
+            DrawLine(
+                _target.Position,
+                _target.Position - ((_target.Position - _player.RealPosition).Normalized() * Mathf.Sqrt(_battleMusicStartDist)),
+                Colors.Red);
     }
 
     public async void OnPlayerDeath(Vector2 deathPos)
     {
         _guiCanvas.Layer = 1;
+        AudioManager.PlayGameDeath();
 
         GetTree().Paused = true;
         if (_gameOverLabel != null)

@@ -23,7 +23,6 @@ public partial class Grid : Node2D
 	public int GridHeight => _verticalGridSize;
 	public int GridSquareCount => _gridSize * _verticalGridSize;
 	public Vector2 SquareSize => _squareSize;
-	//ublic bool Ready => _ready;
 
 	// Lifecycle
 	// Called when the node enters the scene tree for the first time.

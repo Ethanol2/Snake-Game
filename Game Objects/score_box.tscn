@@ -2,7 +2,7 @@
 
 [ext_resource type="StyleBox" uid="uid://s0fctvpfqxjq" path="res://Art/UI/leaderboard_panel.tres" id="1_brq8s"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="2_2a081"]
-[ext_resource type="Script" uid="uid://dv326440shp5i" path="res://Game Objects/ScoreBox.cs" id="2_ka2oe"]
+[ext_resource type="Script" uid="uid://dv326440shp5i" path="res://Scripts/ScoreBox.cs" id="2_ka2oe"]
 
 [node name="Score Box" type="Panel" node_paths=PackedStringArray("_uiParent", "_placementLabel", "_nameInput", "_nameLabel", "_scoreLabel")]
 custom_minimum_size = Vector2(0, 70)

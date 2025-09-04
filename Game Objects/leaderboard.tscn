@@ -2,7 +2,7 @@
 
 [ext_resource type="StyleBox" uid="uid://s0fctvpfqxjq" path="res://Art/UI/leaderboard_panel.tres" id="1_8qws4"]
 [ext_resource type="PackedScene" uid="uid://cscy2kg8qii2w" path="res://Game Objects/score_box.tscn" id="2_8qws4"]
-[ext_resource type="Script" uid="uid://bfid10kmmuhak" path="res://Game Objects/Leaderboard.cs" id="2_ublkn"]
+[ext_resource type="Script" uid="uid://bfid10kmmuhak" path="res://Scripts/Leaderboard.cs" id="2_ublkn"]
 [ext_resource type="FontFile" uid="uid://dmpyu22w40c5y" path="res://Art/UI/HoboStd.otf" id="4_owcn2"]
 
 [node name="Leaderboard" type="Panel" node_paths=PackedStringArray("_scoreBoxParent", "_noScoresLabel")]

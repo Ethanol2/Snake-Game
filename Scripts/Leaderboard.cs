@@ -54,6 +54,9 @@ public partial class Leaderboard : Panel
 		if (sortedScores.Count > 1)
 		{
 			sortedScores.IndexOf(newScore);
+
+			AudioManager.PlayGameCelebration();
+
 			index = index < 0 ? 10 : index + 1;
 		}
 
@@ -64,9 +67,12 @@ public partial class Leaderboard : Panel
 		_activeBox = activeBox;
 
 		_scoreBoxes = _scoreBoxes.OrderBy(x => x.Score).Reverse().ToList();
+		int position = 1;
 		foreach (ScoreBox child in _scoreBoxes)
 		{
 			_scoreBoxParent.AddChild(child);
+			child.SetPlacement(position);
+			position++;
 		}
 	}
 	private List<ScoreBox> HandleSaveData(ref List<int> sortedScores, int rules)

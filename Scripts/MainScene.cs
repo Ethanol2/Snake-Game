@@ -16,6 +16,7 @@ public partial class MainScene : Node
 	[Export] private Label _gridControlLabel;
 	[Export] private HSlider _gridControl;
 	[Export] private CheckButton _edgeWrapControl;
+	[Export] private CheckButton _musicControl;
 
 	[ExportCategory("Debug")]
 	[Export] private bool _forceDebugEditor = false;
@@ -108,6 +109,7 @@ public partial class MainScene : Node
 	public void _SetSpeed(RuleSet.SPEEDMODE speed) => _activeRules.SpeedDifficulty = speed;
 	public void _SetGridSize(double index) => _activeRules.SetGridSizeIndex(Mathf.RoundToInt(index));
 	public void _SetGridSize(int index) => _activeRules.SetGridSizeIndex(index);
+	public void _SetMusicEnabled(bool value) => DataKeeper.MusicEnabled = value;
 	public void _SetRules()
 	{
 		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
@@ -123,16 +125,17 @@ public partial class MainScene : Node
 	}
 	private void RulesControlsSubscribe()
 	{
-		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
+		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel, _musicControl))
 			return;
 
 		_edgeWrapControl.Toggled += _SetEdgeWrap;
 		_speedControl.ValueChanged += _SetSpeed;
 		_gridControl.ValueChanged += _SetGridSize;
+		_musicControl.Toggled += _SetMusicEnabled;
 	}
 	private void InverseSetRules()
 	{
-		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel))
+		if (DebugLog.CheckNull(_edgeWrapControl, _speedControl, _speedControlLabel, _gridControl, _gridControlLabel, _musicControl))
 			return;
 
 		_edgeWrapControl.ButtonPressed = _activeRules.EdgeWrap;
@@ -142,6 +145,8 @@ public partial class MainScene : Node
 
 		_gridControlLabel.Text = "Grid Size: " + _activeRules.GridSize;
 		_gridControl.Value = _activeRules.GetGridSizeIndex();
+
+		_musicControl.ButtonPressed = DataKeeper.MusicEnabled;
 	}
 	private void OnRulesChanged(RuleSet ruleSet)
 	{

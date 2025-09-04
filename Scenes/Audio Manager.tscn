@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cc5xbbt48xdfm"]
+[gd_scene load_steps=14 format=3 uid="uid://cc5xbbt48xdfm"]
 
 [ext_resource type="Script" uid="uid://dy4xrvvxy63da" path="res://Scripts/AudioManager.cs" id="1_mrd85"]
 [ext_resource type="AudioStream" uid="uid://cvx37u4jpcoco" path="res://Sound/UI/ui_focux_change.mp3" id="2_f0oly"]
@@ -12,6 +12,7 @@
 [ext_resource type="AudioStream" uid="uid://dytm0woswfyr5" path="res://Sound/02_Game Over_v2.wav" id="10_hcsnn"]
 [ext_resource type="AudioStream" uid="uid://b4b4nmqq3hm75" path="res://Sound/02_Game Over_v3.wav" id="11_r7ngy"]
 [ext_resource type="AudioStream" uid="uid://sdh37ekbgiq7" path="res://Sound/02_Game Over_v4.wav" id="12_xqh71"]
+[ext_resource type="AudioStream" uid="uid://nldtqrcaohb6" path="res://Sound/03_Power up_v1.wav" id="13_yphog"]
 
 [node name="AudioManager" type="Node" node_paths=PackedStringArray("_audioStreamPlayers")]
 script = ExtResource("1_mrd85")
@@ -23,7 +24,7 @@ _toggleOff = ExtResource("4_ikiqp")
 _gameStart = Array[AudioStream]([ExtResource("5_57dav")])
 _success = Array[AudioStream]([ExtResource("6_f4u5s"), ExtResource("7_yphog"), ExtResource("8_fs7gu")])
 _death = Array[AudioStream]([ExtResource("9_k7n7l"), ExtResource("10_hcsnn"), ExtResource("11_r7ngy"), ExtResource("12_xqh71")])
-_celebration = Array[AudioStream]([])
+_celebration = Array[AudioStream]([ExtResource("13_yphog")])
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 

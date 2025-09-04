@@ -6,16 +6,17 @@
 [ext_resource type="Theme" uid="uid://h1f7iqhh7ycb" path="res://Art/Kenney/kenneyUI-yellow.tres" id="4_v87v2"]
 [ext_resource type="PackedScene" uid="uid://cc5xbbt48xdfm" path="res://Scenes/Audio Manager.tscn" id="5_pilj3"]
 
-[node name="MainScene" type="Node" node_paths=PackedStringArray("_mainMenu", "_leaderboard", "_speedControlLabel", "_speedControl", "_gridControlLabel", "_gridControl", "_edgeWrapControl")]
+[node name="MainScene" type="Node" node_paths=PackedStringArray("_mainMenu", "_leaderboard", "_speedControlLabel", "_speedControl", "_gridControlLabel", "_gridControl", "_edgeWrapControl", "_musicControl")]
 script = ExtResource("1_ke1vn")
 _gameScene = ExtResource("2_ke1vn")
 _mainMenu = NodePath("MainMenu")
 _leaderboard = NodePath("MainMenu/Panel/Leaderboard")
-_speedControlLabel = NodePath("MainMenu/Panel/Rules Settings/Speed Control/Label")
-_speedControl = NodePath("MainMenu/Panel/Rules Settings/Speed Control/HSlider")
-_gridControlLabel = NodePath("MainMenu/Panel/Rules Settings/Grid Size Control/Label")
-_gridControl = NodePath("MainMenu/Panel/Rules Settings/Grid Size Control/HSlider")
-_edgeWrapControl = NodePath("MainMenu/Panel/Rules Settings/Edge Wrap Control/Toggle Button")
+_speedControlLabel = NodePath("MainMenu/Panel/Settings/Speed Control/Label")
+_speedControl = NodePath("MainMenu/Panel/Settings/Speed Control/HSlider")
+_gridControlLabel = NodePath("MainMenu/Panel/Settings/Grid Size Control/Label")
+_gridControl = NodePath("MainMenu/Panel/Settings/Grid Size Control/HSlider")
+_edgeWrapControl = NodePath("MainMenu/Panel/Settings/Edge Wrap Control/Toggle Button")
+_musicControl = NodePath("MainMenu/Panel/Settings/Music Control/Toggle Button")
 
 [node name="MainMenu" parent="." instance=ExtResource("1_tn1qc")]
 
@@ -27,6 +28,7 @@ theme = ExtResource("4_v87v2")
 text = "Clear Scores"
 
 [node name="AudioManager" parent="." instance=ExtResource("5_pilj3")]
+process_mode = 3
 
 [connection signal="pressed" from="MainMenu/Panel/Play Exit Buttons/Play Button" to="." method="_StartGame"]
 [connection signal="pressed" from="MainMenu/Panel/Play Exit Buttons/Exit Button" to="." method="_ExitGame"]

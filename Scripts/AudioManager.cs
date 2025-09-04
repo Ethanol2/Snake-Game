@@ -20,6 +20,9 @@ public partial class AudioManager : Node
 	[Export] private AudioStream[] _death;
 	[Export] private AudioStream[] _celebration;
 
+	[ExportCategory("Debug")]
+	[Export] private bool _verboseLogging = false;
+
 	private PlayerHandler[] _players;
 	private RandomNumberGenerator _rand;
 
@@ -45,7 +48,7 @@ public partial class AudioManager : Node
 		_rand = new RandomNumberGenerator();
 
 		// Delay to allow stuff to initialize without sfx
-		await Task.Delay(1000);
+		await Task.Delay(500);
 
 		_players = new PlayerHandler[_audioStreamPlayers.Length];
 		for (int i = 0; i < _players.Length; i++)
@@ -54,7 +57,6 @@ public partial class AudioManager : Node
 		}
 
 		GetTree().NodeAdded += OnNodeAddedToTree;
-		//GetTree().NodeRemoved += OnNodeRemovedFromTree;
 		GetAllNodesRecursive(GetParent());
 	}
 	private void GetAllNodesRecursive(Node parent)
@@ -71,55 +73,35 @@ public partial class AudioManager : Node
 
 		Control control = node as Control;
 
-		if (node is Button button)
-		{
-			this.Log($"Adding \"{node.Name}\" to sound subscription");
+		if (!control.GetMeta("Make_Sound", true).AsBool())
+			return;
 
-			//control.MouseEntered -= OnControlFocused;
-			control.MouseEntered += OnControlFocused;
-			if (button is CheckButton toggle)
+		try
+		{
+			if (node is Button button)
 			{
-				//toggle.Toggled -= OnToggleChanged;
-				toggle.Toggled += OnToggleChanged;
+				this.Log($"Adding \"{node.Name}\" to sound subscription");
+				control.MouseEntered += OnControlFocused;
+
+				if (button is CheckButton toggle)
+				{
+					toggle.Toggled += OnToggleChanged;
+				}
+				else
+				{
+					button.Pressed += OnButtonPressed;
+				}
 			}
-			else
+			else if (node is Slider slider)
 			{
-				//button.Pressed -= OnButtonPressed;
-				button.Pressed += OnButtonPressed;
+				this.Log($"Adding \"{node.Name}\" to sound subscription");
+				slider.ValueChanged += OnSliderChanged;
 			}
 		}
-		else if (node is Slider slider)
+		catch (Exception e)
 		{
-			this.Log($"Adding \"{node.Name}\" to sound subscription");
-
-			//control.MouseEntered += OnControlFocused;
-			//slider.ValueChanged -= OnSliderChanged;
-			slider.ValueChanged += OnSliderChanged;
-		}
-	}
-	private void OnNodeRemovedFromTree(Node node)
-	{
-		if (node is not Control) return;
-
-		Control control = node as Control;
-
-		if (node is Button button)
-		{
-			this.Log($"Removing \"{node.Name}\" from sound subscription");
-
-			control.FocusEntered -= OnControlFocused;
-
-			if (button is CheckButton toggle)
-				toggle.Toggled -= OnToggleChanged;
-			else
-				button.Pressed -= OnButtonPressed;
-		}
-		else if (node is Slider slider)
-		{
-			this.Log($"Removing \"{node.Name}\" from sound subscription");
-
-			control.FocusEntered -= OnControlFocused;
-			slider.ValueChanged -= OnSliderChanged;
+			if (_verboseLogging)
+				this.LogError(e);
 		}
 	}
 	private void OnControlFocused() => _PlayRandom(_uiSelect);

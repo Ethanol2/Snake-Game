@@ -32,6 +32,7 @@ public partial class Player : Node2D
     public int Length => _snakeBody == null ? 0 : _snakeBody.Positions.Count + 1;
     public float Speed { get => _speed; set { _speed = value; this.Log("Speed: " + _speed); } }
     public bool Debug { get => _debug; set => _debug = value; }
+    public Vector2 RealPosition => _realPosition;
 
     // Events
     public event Action<Vector2> OnPositionChanged;

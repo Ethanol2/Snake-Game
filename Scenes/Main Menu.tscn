@@ -82,7 +82,7 @@ label_settings = ExtResource("1_853f1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Rules Settings" type="VBoxContainer" parent="Panel"]
+[node name="Settings" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -91,15 +91,15 @@ anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -300.0
 offset_top = -200.0
-offset_bottom = 200.0
+offset_bottom = 48.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="Speed Control" type="Control" parent="Panel/Rules Settings"]
+[node name="Speed Control" type="Control" parent="Panel/Settings"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 
-[node name="HSlider" type="HSlider" parent="Panel/Rules Settings/Speed Control"]
+[node name="HSlider" type="HSlider" parent="Panel/Settings/Speed Control"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -116,7 +116,7 @@ value = 2.0
 tick_count = 6
 ticks_on_borders = true
 
-[node name="Label" type="Label" parent="Panel/Rules Settings/Speed Control"]
+[node name="Label" type="Label" parent="Panel/Settings/Speed Control"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -127,11 +127,11 @@ text = "Speed : Normal"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Grid Size Control" type="Control" parent="Panel/Rules Settings"]
+[node name="Grid Size Control" type="Control" parent="Panel/Settings"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 
-[node name="HSlider" type="HSlider" parent="Panel/Rules Settings/Grid Size Control"]
+[node name="HSlider" type="HSlider" parent="Panel/Settings/Grid Size Control"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -148,7 +148,7 @@ value = 3.0
 tick_count = 10
 ticks_on_borders = true
 
-[node name="Label" type="Label" parent="Panel/Rules Settings/Grid Size Control"]
+[node name="Label" type="Label" parent="Panel/Settings/Grid Size Control"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -159,11 +159,11 @@ text = "Grid Size: 50"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Edge Wrap Control" type="Control" parent="Panel/Rules Settings"]
+[node name="Edge Wrap Control" type="Control" parent="Panel/Settings"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="Toggle Button" type="CheckButton" parent="Panel/Rules Settings/Edge Wrap Control"]
+[node name="Toggle Button" type="CheckButton" parent="Panel/Settings/Edge Wrap Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -177,6 +177,26 @@ focus_neighbor_top = NodePath("../../Grid Size Control/HSlider")
 focus_neighbor_bottom = NodePath("../../../Play Exit Buttons/Play Button")
 theme_override_font_sizes/font_size = 25
 text = "Edge Wrap"
+expand_icon = true
+
+[node name="Music Control" type="Control" parent="Panel/Settings"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="Toggle Button" type="CheckButton" parent="Panel/Settings/Music Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 12.5
+offset_bottom = -12.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(50, 0)
+focus_neighbor_top = NodePath("../../Grid Size Control/HSlider")
+focus_neighbor_bottom = NodePath("../../../Play Exit Buttons/Play Button")
+theme_override_font_sizes/font_size = 25
+text = "Music Enabled"
 expand_icon = true
 
 [node name="Play Exit Buttons" type="Control" parent="Panel"]
@@ -204,7 +224,7 @@ offset_bottom = 50.0
 grow_horizontal = 0
 grow_vertical = 2
 focus_neighbor_left = NodePath("../Exit Button")
-focus_neighbor_top = NodePath("../../Rules Settings/Edge Wrap Control/Toggle Button")
+focus_neighbor_top = NodePath("../../Settings/Edge Wrap Control/Toggle Button")
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 35
